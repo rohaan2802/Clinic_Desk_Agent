@@ -8,8 +8,8 @@ Copy these details into `i222327_submission.pdf`.
 - University email: i222327@nu.edu.pk
 - GitHub username: rohaan2802
 - Agent name and domain: ClinicDesk — campus clinic appointment operations
-- Private GitHub repository URL: https://github.com/rohaan2802/i222327-clinicdesk
-- Final source commit hash: f91a575ef8e2e93db7f138a7df2e2f13a720d341
+- Private GitHub repository URL: https://github.com/rohaan2802/Clinic_Desk_Agent
+- Final source commit hash: 2d6b0e4
 - Working public agent interface URL: https://clinic-desk-agent.onrender.com/
 - GET /health URL: https://clinic-desk-agent.onrender.com/health
 - POST /arena/run URL: https://clinic-desk-agent.onrender.com/arena/run
