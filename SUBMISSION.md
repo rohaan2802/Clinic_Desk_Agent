@@ -9,7 +9,7 @@ Copy these details into `i222327_submission.pdf`.
 - GitHub username: rohaan2802
 - Agent name and domain: ClinicDesk — campus clinic appointment operations
 - Private GitHub repository URL: https://github.com/rohaan2802/i222327-clinicdesk
-- Final source commit hash: 746cdb4
+- Final source commit hash: ca6619d
 - Working public agent interface URL: PENDING_RENDER_FREE_DEPLOY
 - GET /health URL: PENDING_RENDER_FREE_DEPLOY/health
 - POST /arena/run URL: PENDING_RENDER_FREE_DEPLOY/arena/run
