@@ -16,13 +16,13 @@ async def execute(request, history=None, model='unconfigured'):
             result = ArenaResponse.model_validate(result)
     except TimeoutError:
         result = ArenaResponse(request_id=request.request_id, status='budget_exceeded',
-            final_response='The run timed out.', stop_reason='time_budget_reached')
+            final_response='That request took too long, so I stopped. Please try again.', stop_reason='time_budget_reached')
     except Exception:
         result = ArenaResponse(request_id=request.request_id, status='failed',
-            final_response='The run stopped due to an internal error.', stop_reason='internal_error')
+            final_response='Something went wrong on my side. Please try that clinic request again.', stop_reason='internal_error')
     result.metrics.latency_ms = (perf_counter() - started) * 1000
     if len(result.model_dump_json().encode()) > 50000:
         result = ArenaResponse(request_id=request.request_id, status='failed',
-            final_response='Response exceeded the size limit.', stop_reason='response_too_large')
+            final_response='The reply was too long to send. Please ask for a shorter clinic request.', stop_reason='response_too_large')
     log.info('request=%s status=%s steps=%s', request.request_id, result.status, result.steps)
     return result

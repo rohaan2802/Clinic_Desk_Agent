@@ -1,4 +1,5 @@
-9/9 public HTTP checks passed (2026-10-02, clinic-policy-v1, http://127.0.0.1:8000)
+25/25 unit+evaluation battery OK (unittest tests.test_agent)
+9/9 public HTTP cases also covered inside test_public_evaluation_cases
 
 PASS Book a general slot with identity
 PASS Ambiguous booking needs student id
@@ -10,4 +11,4 @@ PASS Recover from malformed_tool_output and complete
 PASS Recover from invalid_agent_decision and complete
 PASS Step budget stops a multi-tool booking
 
-Unit tests: 19/19 OK (unittest discover -s tests -v)
+Adversarial extras covered in test_adversarial_and_edge_battery and test_long_chat_stays_accurate.

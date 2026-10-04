@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <title>ClinicDesk API</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/swagger.css">
+</head>
+<body>
+  <div class="orbit" aria-hidden="true"></div>
+  <header class="top">
+    <a class="brand" href="/" style="text-decoration:none;color:inherit">
+      <span class="mark">+</span>
+      <div>
+        <p class="eyebrow">Agent Arena</p>
+        <h1>API</h1>
+      </div>
+    </a>
+    <div class="top-actions">
+      <button id="theme" class="theme-btn" type="button" aria-label="Switch to light theme" title="Light mode">
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 13.5A7 7 0 1 1 10.5 7a5.5 5.5 0 0 0 6 6.5z"/></svg>
+      </button>
+      <a class="ghost" href="/">Desk</a>
+      <a class="ghost" href="/health-ui">Health</a>
+    </div>
+  </header>
+  <p class="lede">
+    This API page is the machine menu for ClinicDesk: every URL the desk uses
+    (<code>/chat</code>, <code>/arena/run</code>, <code>/health</code>, …), what to send, and what comes back.
+    The Desk UI calls these same endpoints. Read the
+    <a class="doc-link" href="/openapi" target="_blank" rel="noopener noreferrer">OpenAPI contract</a>
+    for the full structured specification.
+  </p>
+  <div id="swagger"></div>
+  <section class="schema-wrap">
+    <h2>Schemas</h2>
+    <div id="schema-cards">Loading…</div>
+  </section>
+  <script src="/static/theme.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="/static/schemas.js"></script>
+  <script>
+    const CURL_NOTE = 'Curl (command-line request recipe used to call this endpoint outside the browser)';
+
+    function annotateCurlLabels(root){
+      root.querySelectorAll('h4').forEach(node=>{
+        const text=(node.textContent||'').trim();
+        if(text==='Curl' || text==='curl'){
+          node.textContent=CURL_NOTE;
+        }
+      });
+    }
+
+    function closeAllSchemaCards(){
+      document.querySelectorAll('#schema-cards .schema-card.is-open').forEach(card=>{
+        card.classList.remove('is-open');
+        const toggle=card.querySelector('.schema-toggle');
+        const body=card.querySelector('.schema-body');
+        if(toggle)toggle.setAttribute('aria-expanded','false');
+        if(body)body.hidden=true;
+      });
+    }
+
+    function closeOtherOpblocks(root, keep){
+      root.querySelectorAll('.opblock.is-open').forEach(block=>{
+        if(block===keep)return;
+        const control=block.querySelector('button.opblock-summary-control')||block.querySelector('.opblock-summary');
+        if(control)control.click();
+      });
+    }
+
+    function afterToggle(fn){
+      requestAnimationFrame(()=>requestAnimationFrame(fn));
+    }
+
+    function keepClinicTagOpen(root){
+      root.querySelectorAll('.opblock-tag-section').forEach(section=>{
+        if(!section.classList.contains('is-open')){
+          const tag=section.querySelector('.opblock-tag');
+          if(tag)tag.click();
+        }
+      });
+    }
+
+    function wireSwaggerAccordion(root){
+      if(root.dataset.accordionWired)return;
+      root.dataset.accordionWired='1';
+      root.addEventListener('click',event=>{
+        const summary=event.target.closest('.opblock-summary');
+        if(!summary)return;
+        const block=summary.closest('.opblock');
+        afterToggle(()=>{
+          if(!block||!block.classList.contains('is-open'))return;
+          closeAllSchemaCards();
+          closeOtherOpblocks(root, block);
+        });
+      }, true);
+    }
+
+    window.closeAllSwaggerCards=function(){
+      const root=document.getElementById('swagger');
+      if(!root)return;
+      root.querySelectorAll('.opblock.is-open').forEach(block=>{
+        const control=block.querySelector('button.opblock-summary-control')||block.querySelector('.opblock-summary');
+        if(control)control.click();
+      });
+    };
+
+    fetch('/openapi-spec').then(r=>r.json()).then(spec=>{
+      window.ui = SwaggerUIBundle({
+        spec: spec,
+        dom_id: '#swagger',
+        deepLinking: false,
+        docExpansion: 'list',
+        defaultModelsExpandDepth: -1,
+        defaultModelExpandDepth: -1,
+        tryItOutEnabled: true,
+        syntaxHighlight: {activate: true, theme: 'monokai'},
+        onComplete: function(){
+          const root=document.getElementById('swagger');
+          if(!root)return;
+          root.querySelectorAll('a[href*="openapi"]').forEach(a=>a.remove());
+          annotateCurlLabels(root);
+          keepClinicTagOpen(root);
+          wireSwaggerAccordion(root);
+          new MutationObserver(()=>{
+            annotateCurlLabels(root);
+            root.querySelectorAll('a[href*="openapi"]').forEach(a=>a.remove());
+          }).observe(root,{childList:true,subtree:true});
+        }
+      });
+    }).catch(()=>{
+      document.getElementById('swagger').textContent='Could not load the API contract.';
+    });
+  </script>
+</body>
+</html>

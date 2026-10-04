@@ -59,3 +59,12 @@ def snapshot() -> dict:
             'spend_usd': round(_spend_usd, 6),
             'max_spend_usd': settings.max_spend_usd,
         }
+
+
+def reset_for_tests() -> None:
+    """Clear rate / concurrency / spend counters between unit tests."""
+    global _concurrent, _spend_usd
+    with _lock:
+        _hits.clear()
+        _concurrent = 0
+        _spend_usd = 0.0

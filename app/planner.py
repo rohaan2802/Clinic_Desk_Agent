@@ -125,22 +125,55 @@ def _from_list_observation(observations: list[str], want_today: bool) -> str | N
     return None
 
 
+def _humanize_slots(obs: str) -> str:
+    lines = []
+    for line in (obs or '').splitlines():
+        if not line.startswith('SLOT-'):
+            continue
+        parts = [part.strip() for part in line.split('|')]
+        if len(parts) < 4:
+            continue
+        slot, when, specialty, provider = parts[0], parts[1], parts[2], parts[3]
+        lines.append(f'• {when} — {specialty} with {provider} (ref {slot})')
+    if not lines:
+        return 'No open times matched that visit type and day. Try another day or another kind of visit.'
+    return 'Here are the open times I found:\n' + '\n'.join(lines)
+
+
+def _humanize_appointments(obs: str) -> str:
+    student = ''
+    if 'student=' in (obs or ''):
+        student = obs.split('student=', 1)[-1].split()[0]
+    lines = []
+    for line in (obs or '').splitlines():
+        if not line.startswith('A-'):
+            continue
+        parts = [part.strip() for part in line.split('|')]
+        if len(parts) < 4:
+            continue
+        appt, when, specialty, status = parts[0], parts[1], parts[2], parts[3]
+        lines.append(f'• {appt}: {when} — {specialty} ({status})')
+    who = f' for student {student}' if student else ''
+    if not lines:
+        return f'No appointments on file{who}.'
+    return f'Appointments{who}:\n' + '\n'.join(lines)
+
+
 def _humanize_terminal(obs: str) -> str:
     text = obs.replace('TERMINAL=1', '').strip()
     parts = text.split()
     try:
         tool = parts[1]
-        code = parts[3].split('=', 1)[-1]
         appt_id, student_id, day, start, specialty, status = parts[4:10]
     except (IndexError, ValueError):
-        return text[:1900]
+        return 'The clinic update finished, but I could not turn the result into a short summary.'
     if tool == 'book_appointment':
-        return f'Booked {appt_id} for {student_id} on {day} at {start} ({specialty}). Status: {status}.'
+        return f'Done. Booked visit {appt_id} for student {student_id} on {day} at {start} ({specialty}). It is {status}.'
     if tool == 'cancel_appointment':
-        return f'Cancelled {appt_id} for {student_id} on {day} at {start} ({specialty}).'
+        return f'Done. Cancelled visit {appt_id} for student {student_id} on {day} at {start} ({specialty}).'
     if tool == 'reschedule_appointment':
-        return f'Rescheduled {appt_id} for {student_id} to {day} at {start} ({specialty}).'
-    return f'{code}: {appt_id} {student_id} {day} {start} {specialty}'
+        return f'Done. Moved visit {appt_id} for student {student_id} to {day} at {start} ({specialty}).'
+    return f'Done. Updated visit {appt_id} for student {student_id} on {day} at {start} ({specialty}).'
 
 
 def _last_obs(observations: list[str]) -> str:
@@ -157,20 +190,28 @@ def _decision(action: str, message: str, thought: str, tool: str | None = None, 
     }
 
 
+def _reject_message(obs: str) -> str:
+    if 'message=' in (obs or ''):
+        return obs.split('message=', 1)[-1].strip()
+    return 'That clinic update was rejected. Please check the visit id and try again.'
+
+
 def plan_decision(task: str, history: list, observations: list[str], notes: list[str]) -> dict:
     if detect_injection(task):
         return _decision(
             'block',
-            'I cannot follow instructions that ask me to ignore clinic policy, reveal hidden prompts, or cancel everything.',
+            'I cannot ignore clinic rules, show hidden instructions, or cancel every visit at once.',
             'Task contains an injection or out-of-policy override.',
         )
 
     ignored = [note for note in notes if detect_injection(note)]
     _ = ignored
     goal = resolve_goal(task, history)
-    blob = f'{goal}\n{_history_text(history)}'
-    student_id = _extract_student(blob)
-    appt_id = _extract_appt(goal) or _extract_appt(blob)
+    # Current task/goal only. Never dig old chat for ids — that caused wrong cancels and step loops.
+    student_id = _extract_student(goal)
+    appt_id = _extract_appt(goal)
+    # Optional confirm-id for cancel/reschedule: only if typed in THIS user message.
+    task_student_id = _extract_student(task)
     slot_id = _extract_slot(goal)
     specialty = _extract_specialty(goal)
     wanted_date = _extract_date(goal)
@@ -180,27 +221,45 @@ def plan_decision(task: str, history: list, observations: list[str], notes: list
     if 'code=approval_required' in last:
         return _decision(
             'request_approval',
-            'This change is same-day or in the past, so a staff member must approve it. I did not alter the appointment.',
+            _reject_message(last) or (
+                'This visit is today or already passed, so a staff member must approve the change. I left it as it is.'
+            ),
             'Tool required human approval.',
         )
     if 'TERMINAL=1' in last:
         return _decision('finish', _humanize_terminal(last), 'Mutation succeeded.')
+    if any(code in last for code in (
+        'code=not_active',
+        'code=identity_mismatch',
+        'code=unknown_appointment',
+        'code=limit_reached',
+        'code=missing_args',
+    )):
+        return _decision('finish', _reject_message(last), 'Hard tool rejection; stop looping.')
     if 'OPEN_SLOTS' in last and last.strip().endswith('none'):
         return _decision(
             'finish',
-            'No open slots matched that specialty and date in the sandbox. Try another day or specialty.',
+            'No open times matched that visit type and day. Try another day or another kind of visit.',
             'Search returned no slots',
         )
     if 'OPEN_SLOTS' in last and intent in {'search', 'unknown'}:
-        return _decision('finish', last[:1900], 'Availability search completed.')
+        return _decision('finish', _humanize_slots(last), 'Availability search completed.')
     if 'APPOINTMENTS:' in last and intent == 'list':
-        return _decision('finish', last[:1900], 'Appointment list completed.')
+        return _decision('finish', _humanize_appointments(last), 'Appointment list completed.')
     if 'code=unknown_student' in last:
-        return _decision('clarify', 'I could not find that student id. Please send a valid id such as S-1001.', 'Unknown student')
+        return _decision('clarify', 'I could not find that student. Please send an id like S-1001.', 'Unknown student')
     if 'code=slot_taken' in last or 'code=unknown_slot' in last:
+        # Avoid infinite search↔book loops: only retry search once per run.
+        prior_searches = sum(1 for obs in observations if 'OPEN_SLOTS' in obs)
+        if prior_searches >= 2:
+            return _decision(
+                'clarify',
+                'I could not lock an open time. Please name a free slot ref (SLOT-...) or try another day.',
+                'Slot search already retried.',
+            )
         return _decision(
             'use_tool',
-            'That slot is not bookable. I will search for another open slot.',
+            'That time is no longer free. I will look for another open time.',
             'Need a fresh slot list',
             'search_availability',
             {'specialty': specialty or 'general', 'date': wanted_date},
@@ -209,25 +268,25 @@ def plan_decision(task: str, history: list, observations: list[str], notes: list
     if intent in {'book', 'list'} and not student_id:
         return _decision(
             'clarify',
-            'I can do that in the clinic sandbox. Please send the student id in the form S-1001.',
+            'I can help with that. Please send the student id, like S-1001.',
             'Missing identity for a mutation or lookup.',
         )
     if intent == 'cancel' and not appt_id and not student_id:
         return _decision(
             'clarify',
-            'Which appointment should I cancel? Send the appointment id (A-9001) or the student id (S-1002).',
+            'Which visit should I cancel? Send the visit id (A-9001) or the student id (S-1002).',
             'Cancel is ambiguous.',
         )
 
     if intent == 'list':
         if not student_id:
-            return _decision('clarify', 'Please send the student id in the form S-1001 so I can list appointments.', 'Need id')
+            return _decision('clarify', 'Please send the student id, like S-1001, so I can show their visits.', 'Need id')
         return _decision('use_tool', 'Looking up that student now.', 'List appointments', 'list_appointments', {'student_id': student_id})
 
     if intent == 'search' or (intent == 'unknown' and (specialty or 'slot' in goal.lower() or 'available' in goal.lower())):
         return _decision(
             'use_tool',
-            'Checking open clinic slots.',
+            'Checking which clinic times are still open.',
             'Search availability',
             'search_availability',
             {'specialty': specialty, 'date': wanted_date},
@@ -235,19 +294,19 @@ def plan_decision(task: str, history: list, observations: list[str], notes: list
 
     if intent == 'book':
         if not student_id:
-            return _decision('clarify', 'Please send the student id (S-1001) so I can book the appointment.', 'Need id to book')
+            return _decision('clarify', 'Please send the student id, like S-1001, so I can book the visit.', 'Need id to book')
         picked = slot_id or _pick_slot(observations, goal)
         if not picked:
             return _decision(
                 'use_tool',
-                'I will first find an open slot, then book it.',
+                'I will first find an open time, then book it.',
                 'Search before book',
                 'search_availability',
                 {'specialty': specialty or 'general', 'date': wanted_date},
             )
         return _decision(
             'use_tool',
-            f'Booking {picked} for {student_id}.',
+            f'Booking that time for student {student_id}.',
             'Book selected slot',
             'book_appointment',
             {'student_id': student_id, 'slot_id': picked, 'reason': 'student request'},
@@ -258,7 +317,7 @@ def plan_decision(task: str, history: list, observations: list[str], notes: list
             if student_id and 'APPOINTMENTS:' not in ''.join(observations):
                 return _decision(
                     'use_tool',
-                    'I will list this student\'s appointments so we can cancel the right one.',
+                    'I will show this student\'s visits so we can cancel the right one.',
                     'Need appointment id',
                     'list_appointments',
                     {'student_id': student_id},
@@ -267,33 +326,33 @@ def plan_decision(task: str, history: list, observations: list[str], notes: list
             if listed:
                 appt_id = listed
             else:
-                return _decision('clarify', 'Which appointment id should I cancel (for example A-9001)?', 'Still missing id')
+                return _decision('clarify', 'Which visit should I cancel? Send an id like A-9001.', 'Still missing id')
         args = {'appointment_id': appt_id}
-        if student_id:
-            args['student_id'] = student_id
-        return _decision('use_tool', f'Checking cancellation policy for {appt_id}.', 'Cancel', 'cancel_appointment', args)
+        if task_student_id:
+            args['student_id'] = task_student_id
+        return _decision('use_tool', f'Checking whether {appt_id} can be cancelled.', 'Cancel', 'cancel_appointment', args)
 
     if intent == 'reschedule':
         if not appt_id:
-            return _decision('clarify', 'Please send the appointment id to reschedule (for example A-9002).', 'Need appointment id')
+            return _decision('clarify', 'Please send the visit id to move, like A-9002.', 'Need appointment id')
         picked = slot_id or _pick_slot(observations, goal)
         if not picked:
             return _decision(
                 'use_tool',
-                'Looking up a new open slot for the reschedule.',
+                'Looking up a new open time so I can move the visit.',
                 'Search before reschedule',
                 'search_availability',
                 {'specialty': specialty or 'general', 'date': wanted_date},
             )
         args = {'appointment_id': appt_id, 'new_slot_id': picked}
-        if student_id:
-            args['student_id'] = student_id
-        return _decision('use_tool', f'Moving {appt_id} to {picked}.', 'Reschedule', 'reschedule_appointment', args)
+        if task_student_id:
+            args['student_id'] = task_student_id
+        return _decision('use_tool', f'Moving visit {appt_id} to a new time.', 'Reschedule', 'reschedule_appointment', args)
 
     if looks_like_followup(task) and student_id:
         return _decision(
             'use_tool',
-            'Thanks, I will look up availability and continue.',
+            'Thanks. I will check open times and continue.',
             'Follow-up supplied identity; search then book if the prior goal was a booking.',
             'search_availability',
             {'specialty': specialty or 'general', 'date': wanted_date},
@@ -302,8 +361,8 @@ def plan_decision(task: str, history: list, observations: list[str], notes: list
     if intent == 'unknown':
         return _decision(
             'clarify',
-            'I can search slots, list appointments, book, cancel, or reschedule in the campus clinic sandbox. '
-            'Send a student id such as S-1001 and the action you want.',
+            'I can find open times, show visits, book, cancel, or move a visit. '
+            'Tell me the student id (like S-1001) and what you want done.',
             'Goal is underspecified.',
         )
-    return _decision('clarify', 'Please restate the clinic task with a student id and the action you want.', 'Fallback clarify')
+    return _decision('clarify', 'Please say what you need — book, list, cancel, or move — and include a student id like S-1001.', 'Fallback clarify')

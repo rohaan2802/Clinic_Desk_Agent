@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClinicDesk health JSON</title>
+  <style>
+    html,body{margin:0;background:#070c0d;color:#f4fffb;min-height:100%}
+    pre{margin:0;padding:28px;font:18px/1.55 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+  </style>
+</head>
+<body>
+  <pre id="json">Loading…</pre>
+  <script>
+    fetch('/health').then(r=>r.json()).then(data=>{
+      document.getElementById('json').textContent=JSON.stringify(data,null,2);
+    }).catch(()=>{
+      document.getElementById('json').textContent='Could not load health data.';
+    });
+  </script>
+</body>
+</html>

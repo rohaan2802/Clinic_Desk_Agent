@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     gemini_api_key: str = ''
     google_api_key: str = ''
     anthropic_api_key: str = ''
+    openrouter_api_key: str = ''
     max_steps: int = Field(default=6, ge=1, le=6)
     max_tool_retries: int = Field(default=2, ge=0, le=2)
     max_output_tokens: int = Field(default=512, ge=1)

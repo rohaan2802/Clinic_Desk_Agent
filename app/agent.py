@@ -8,13 +8,19 @@ from app.config import settings
 from app.limits import add_spend
 from app.llm import complete
 from app.models import AgentDecision, AgentState, ArenaResponse, Metrics
+from app.planner import (
+    _humanize_appointments,
+    _humanize_slots,
+    _humanize_terminal,
+    _intent,
+)
 from app.prompts import assemble_messages, detect_injection, extract_untrusted_notes, resolve_goal
 from app.sandbox import get_sandbox
 from app.tools import REQUIRED_ARGS, TOOLS, run_tool_with_faults
 
 
 def _clip(text: str, limit: int = 2000) -> str:
-    text = (text or '').strip() or 'The clinic agent stopped without a message.'
+    text = (text or '').strip() or 'I stopped before I could finish that clinic request.'
     return text[:limit]
 
 
@@ -87,10 +93,19 @@ def _response(request, status: str, message: str, stop_reason: str, steps: int, 
     )
 
 
+def _planning_history(history: list) -> list:
+    """Planner only needs the latest turn for short clarifications — never the full chat."""
+    if not history:
+        return []
+    return list(history)[-2:]
+
+
 async def run_agent(request, history, model):
     notes = extract_untrusted_notes(request.external_context)
     ignored_notes = [note for note in notes if detect_injection(note)]
-    goal = resolve_goal(request.task, history or [])
+    planning_history = _planning_history(history or [])
+    goal = resolve_goal(request.task, planning_history)
+    goal_intent = _intent(goal)
     sandbox = get_sandbox(getattr(request, 'session_id', None))
     state = AgentState(goal=goal)
     events = []
@@ -107,12 +122,12 @@ async def run_agent(request, history, model):
         events.append({'step': 0, 'event': 'agent_stop', 'reason': 'blocked_prompt_injection'})
         return _response(
             request, 'blocked',
-            'I will not follow a request that asks me to ignore clinic policy, reveal hidden prompts, or wipe appointments.',
+            'I cannot ignore clinic rules, show hidden instructions, or cancel every visit at once.',
             'blocked_prompt_injection', 0, state, tool_calls, errors, events,
         )
 
     for step in range(1, max_steps + 1):
-        messages = assemble_messages(goal, history or [], notes, state.observations)
+        messages = assemble_messages(goal, planning_history, notes, state.observations)
         if not state.fault_used and fault.type == 'invalid_agent_decision':
             state.fault_used = True
             events.append({'step': step, 'event': 'fault_injected', 'type': 'invalid_agent_decision'})
@@ -121,7 +136,7 @@ async def run_agent(request, history, model):
         else:
             result = await complete(model, messages, {
                 'task': request.task,
-                'history': history or [],
+                'history': planning_history,
                 'observations': state.observations,
                 'notes': notes,
             })
@@ -148,7 +163,7 @@ async def run_agent(request, history, model):
             if step == max_steps:
                 return _response(
                     request, 'contract_error',
-                    'The agent could not produce a valid decision within the step budget.',
+                    'I could not finish that request in the allowed number of steps. Please try again with a clearer ask.',
                     'invalid_decision_unrecoverable', step, state, tool_calls, errors, events,
                 )
             continue
@@ -182,7 +197,7 @@ async def run_agent(request, history, model):
             events.append({'step': step, 'event': 'agent_stop', 'reason': 'tool_error'})
             return _response(
                 request, 'tool_error',
-                'The clinic tool failed after bounded retries. No further mutation was attempted.',
+                'The clinic lookup failed after a few tries. I did not change any visit.',
                 'tool_failed_after_retries', step, state, tool_calls, errors, events,
             )
         if tool_result and tool_result.get('code') == 'approval_required':
@@ -192,15 +207,45 @@ async def run_agent(request, history, model):
                 tool_result.get('message') or decision.user_message,
                 'same_day_requires_approval', step, state, tool_calls, errors, events,
             )
-        if tool_result and tool_result.get('terminal') and tool_result.get('ok'):
-            state.last_terminal = observation
+        # Hard rejections must stop immediately — never burn the step budget looping.
+        if tool_result and not tool_result.get('ok') and tool_result.get('code') in {
+            'not_active', 'identity_mismatch', 'unknown_appointment', 'limit_reached', 'missing_args',
+        }:
+            events.append({'step': step, 'event': 'agent_stop', 'reason': 'tool_rejected'})
+            return _response(
+                request, 'completed',
+                tool_result.get('message') or 'That clinic update was rejected. Please check the visit id and try again.',
+                'tool_rejected', step, state, tool_calls, errors, events,
+            )
+        if not tool_result or not tool_result.get('ok'):
+            continue
+
+        # Finish as soon as the goal tool succeeds — do not spend extra steps.
+        if decision.tool == 'list_appointments':
+            events.append({'step': step, 'event': 'agent_stop', 'reason': 'goal_completed'})
+            return _response(
+                request, 'completed', _humanize_appointments(observation), 'goal_completed',
+                step, state, tool_calls, errors, events,
+            )
+        if decision.tool == 'search_availability' and goal_intent in {'search', 'unknown'}:
+            events.append({'step': step, 'event': 'agent_stop', 'reason': 'goal_completed'})
+            return _response(
+                request, 'completed', _humanize_slots(observation), 'goal_completed',
+                step, state, tool_calls, errors, events,
+            )
+        if tool_result.get('terminal'):
+            events.append({'step': step, 'event': 'agent_stop', 'reason': 'goal_completed'})
+            return _response(
+                request, 'completed', _humanize_terminal(observation), 'goal_completed',
+                step, state, tool_calls, errors, events,
+            )
 
     if state.last_terminal:
         events.append({'step': max_steps, 'event': 'agent_stop', 'reason': 'goal_completed'})
-        return _response(request, 'completed', state.last_terminal, 'goal_completed', max_steps, state, tool_calls, errors, events)
+        return _response(request, 'completed', _humanize_terminal(state.last_terminal), 'goal_completed', max_steps, state, tool_calls, errors, events)
     events.append({'step': max_steps, 'event': 'agent_stop', 'reason': 'step_budget_reached'})
     return _response(
         request, 'budget_exceeded',
-        'The step budget was reached before the clinic task could be completed. Ask again with a more specific request.',
+        'I ran out of steps before I could finish. Please ask again and include the student id if you have it.',
         'step_budget_reached', max_steps, state, tool_calls, errors, events,
     )
