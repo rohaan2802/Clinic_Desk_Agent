@@ -9,12 +9,12 @@ Copy these details into `i222327_submission.pdf`.
 - GitHub username: rohaan2802
 - Agent name and domain: ClinicDesk — campus clinic appointment operations
 - Private GitHub repository URL: https://github.com/rohaan2802/i222327-clinicdesk
-- Final source commit hash: ca6619d
-- Working public agent interface URL: PENDING_RENDER_FREE_DEPLOY
-- GET /health URL: PENDING_RENDER_FREE_DEPLOY/health
-- POST /arena/run URL: PENDING_RENDER_FREE_DEPLOY/arena/run
-- GET /arena/manifest URL: PENDING_RENDER_FREE_DEPLOY/arena/manifest
-- API documentation URL: PENDING_RENDER_FREE_DEPLOY/docs
+- Final source commit hash: 1cab98e
+- Working public agent interface URL: https://clinic-desk-agent.onrender.com/
+- GET /health URL: https://clinic-desk-agent.onrender.com/health
+- POST /arena/run URL: https://clinic-desk-agent.onrender.com/arena/run
+- GET /arena/manifest URL: https://clinic-desk-agent.onrender.com/arena/manifest
+- API documentation URL: https://clinic-desk-agent.onrender.com/docs
 - Hosting provider: Render (Free web service — no card required)
 - Default model and provider: clinic-policy-v1 (deterministic clinic policy; no Gemini key required)
 - Other available models: Gemini flash models and OpenRouter GPT-4o mini when API keys are set; unconfigured aliases the policy model
