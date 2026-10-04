@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: clinicdesk-agent
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: MODEL_PROVIDER
+        value: clinic-policy
+      - key: MODEL_NAME
+        value: clinic-policy-v1
+      - key: MAX_STEPS
+        value: "6"
+      - key: MAX_TOOL_RETRIES
+        value: "2"
+      - key: RUN_TIMEOUT_SECONDS
+        value: "40"
+      - key: MAX_CONCURRENT_RUNS
+        value: "8"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "60"
+      - key: MAX_SPEND_USD
+        value: "5.0"

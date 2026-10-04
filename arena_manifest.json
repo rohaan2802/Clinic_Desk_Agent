@@ -1,0 +1,33 @@
+{
+  "arena_version": "0.1",
+  "agent_name": "ClinicDesk",
+  "domain": "campus_clinic_appointments",
+  "description": "Bounded student clinic agent that searches slots, lists appointments, books, cancels, and reschedules in an isolated synthetic sandbox.",
+  "endpoint": "/arena/run",
+  "health_endpoint": "/health",
+  "implementation": "complete",
+  "fault_types": [
+    "none",
+    "tool_timeout",
+    "malformed_tool_output",
+    "invalid_agent_decision"
+  ],
+  "limits": {
+    "max_steps": 6,
+    "max_tool_retries": 2,
+    "run_timeout_seconds": 40,
+    "max_response_bytes": 50000
+  },
+  "tools": [
+    "search_availability",
+    "list_appointments",
+    "book_appointment",
+    "cancel_appointment",
+    "reschedule_appointment"
+  ],
+  "autonomy": {
+    "clarification": "Missing student id or appointment id",
+    "approval_required": "Same-day or past cancel/reschedule",
+    "blocked": "Prompt injection or policy override"
+  }
+}

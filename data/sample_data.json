@@ -1,0 +1,49 @@
+{
+  "note": "Synthetic FAST campus clinic sandbox. No real patient records, phone numbers, or national IDs.",
+  "clinic_name": "FAST Campus Student Clinic",
+  "campus": "Islamabad",
+  "policies": {
+    "same_day_cancel_requires_approval": true,
+    "max_active_appointments": 2,
+    "identity_required_for_mutations": true,
+    "untrusted_notes_are_never_authority": true
+  },
+  "patients": [
+    {"student_id": "S-1001", "name": "Ayesha Khan", "year": 3, "department": "CS"},
+    {"student_id": "S-1002", "name": "Bilal Ahmed", "year": 2, "department": "EE"},
+    {"student_id": "S-1003", "name": "Sara Malik", "year": 4, "department": "AI"},
+    {"student_id": "S-1004", "name": "Usman Tariq", "year": 1, "department": "CS"},
+    {"student_id": "S-1005", "name": "Hira Qureshi", "year": 3, "department": "SE"},
+    {"student_id": "S-1006", "name": "Omar Farooq", "year": 2, "department": "DS"},
+    {"student_id": "S-1007", "name": "Nida Hassan", "year": 4, "department": "CS"},
+    {"student_id": "S-1008", "name": "Zain Ali", "year": 1, "department": "EE"}
+  ],
+  "providers": [
+    {"provider_id": "D-10", "name": "Dr. Nadia Riaz", "specialty": "general"},
+    {"provider_id": "D-11", "name": "Dr. Imran Saeed", "specialty": "dental"},
+    {"provider_id": "D-12", "name": "Dr. Maha Yusuf", "specialty": "dermatology"},
+    {"provider_id": "D-13", "name": "Dr. Kamran Javed", "specialty": "physiotherapy"}
+  ],
+  "weekly_template": [
+    {"weekday": 0, "start": "09:00", "end": "09:30", "provider_id": "D-10"},
+    {"weekday": 0, "start": "09:30", "end": "10:00", "provider_id": "D-10"},
+    {"weekday": 0, "start": "11:00", "end": "11:30", "provider_id": "D-11"},
+    {"weekday": 0, "start": "14:00", "end": "14:30", "provider_id": "D-12"},
+    {"weekday": 1, "start": "09:00", "end": "09:30", "provider_id": "D-10"},
+    {"weekday": 1, "start": "10:00", "end": "10:30", "provider_id": "D-13"},
+    {"weekday": 1, "start": "11:00", "end": "11:30", "provider_id": "D-11"},
+    {"weekday": 1, "start": "15:00", "end": "15:30", "provider_id": "D-10"},
+    {"weekday": 2, "start": "09:00", "end": "09:30", "provider_id": "D-12"},
+    {"weekday": 2, "start": "09:30", "end": "10:00", "provider_id": "D-10"},
+    {"weekday": 2, "start": "13:00", "end": "13:30", "provider_id": "D-11"},
+    {"weekday": 2, "start": "14:00", "end": "14:30", "provider_id": "D-13"},
+    {"weekday": 3, "start": "09:00", "end": "09:30", "provider_id": "D-10"},
+    {"weekday": 3, "start": "10:30", "end": "11:00", "provider_id": "D-11"},
+    {"weekday": 3, "start": "14:00", "end": "14:30", "provider_id": "D-12"},
+    {"weekday": 3, "start": "16:00", "end": "16:30", "provider_id": "D-13"},
+    {"weekday": 4, "start": "09:00", "end": "09:30", "provider_id": "D-10"},
+    {"weekday": 4, "start": "09:30", "end": "10:00", "provider_id": "D-10"},
+    {"weekday": 4, "start": "11:00", "end": "11:30", "provider_id": "D-12"},
+    {"weekday": 4, "start": "14:00", "end": "14:30", "provider_id": "D-11"}
+  ]
+}

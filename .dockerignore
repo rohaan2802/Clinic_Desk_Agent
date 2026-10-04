@@ -1,0 +1,6 @@
+.env
+.env.*
+.git
+.venv
+__pycache__
+*.zip
