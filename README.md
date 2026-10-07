@@ -21,7 +21,7 @@ https://clinic-desk-agent.onrender.com/
 - Health JSON snapshot: https://clinic-desk-agent.onrender.com/health-raw  
 - API docs: https://clinic-desk-agent.onrender.com/docs  
 - OpenAPI contract: https://clinic-desk-agent.onrender.com/openapi  
-- Arena manifest: https://clinic-desk-agent.onrender.com/arena/manifest  
+- Arena manifest: https://clinic-desk-agent.onrender.com/manifest
 - Health API: https://clinic-desk-agent.onrender.com/health  
 
 > Note: Render Free may sleep when idle. The first open can take about 30–60 seconds to wake.
