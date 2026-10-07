@@ -201,10 +201,10 @@
 #swagger .swagger-ui button.btn.execute{
   flex:0 0 auto!important;
   width:auto!important;
-  min-width:140px!important;
-  max-width:200px!important;
-  padding-left:28px!important;
-  padding-right:28px!important;
+  min-width:170px!important;
+  max-width:240px!important;
+  padding-left:36px!important;
+  padding-right:36px!important;
   border-radius:10px!important;
   display:inline-flex!important;
   align-items:center!important;
