@@ -72,7 +72,16 @@ def app_js():
     return FileResponse(
         ROOT / 'app/static/app.js',
         media_type='application/javascript; charset=utf-8',
-        headers={'Cache-Control': 'no-store'},
+        headers=dict(_NO_STORE),
+    )
+
+
+@router.get('/static/style.css', include_in_schema=False)
+def app_css():
+    return FileResponse(
+        ROOT / 'app/static/style.css',
+        media_type='text/css; charset=utf-8',
+        headers=dict(_NO_STORE),
     )
 
 

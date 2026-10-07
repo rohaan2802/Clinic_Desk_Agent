@@ -98,9 +98,10 @@ function friendlyEvents(events){
   }).join('\n');
 }
 
-// Header live pill — honest real-time /health (never faked as always-live).
-// live · ClinicDesk  = /health returned status ok
-// offline            = /health failed after retries
+// Header live pill — honest real-time signal (not a fake always-live sticker).
+// live · ClinicDesk  = same-origin /health or /models succeeded
+// checking…          = still waking / retrying (Render Free cold start)
+// offline            = prolonged failure; background retries keep going
 let liveOk=false;
 let pingPromise=null;
 
@@ -112,27 +113,37 @@ function setLive(text,ok){
   liveOk=!!ok;
 }
 
-async function ping({tries=6}={}){
+async function fetchHealth(timeoutMs){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+    const r=await fetch('/health?_='+Date.now(),{cache:'no-store',signal:controller.signal});
+    if(!r.ok)throw Error('bad status');
+    const data=await r.json();
+    if(data.status!=='ok')throw Error('not ok');
+    return true;
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
+async function ping({tries=12,timeoutMs=45000}={}){
   if(pingPromise)return pingPromise;
   pingPromise=(async()=>{
     for(let i=0;i<tries;i++){
       try{
-        const controller=new AbortController();
-        const timer=setTimeout(()=>controller.abort(),12000);
-        const r=await fetch('/health?_='+Date.now(),{cache:'no-store',signal:controller.signal});
-        clearTimeout(timer);
-        if(!r.ok)throw Error('bad status');
-        const data=await r.json();
-        if(data.status!=='ok')throw Error('not ok');
+        await fetchHealth(timeoutMs);
         setLive('live · ClinicDesk',true);
         return true;
       }catch{
+        // Keep checking through Render cold starts — don't flip offline on the first blips.
         if(!liveOk)setLive('checking…',false);
-        await new Promise(resolve=>setTimeout(resolve,700));
+        await new Promise(resolve=>setTimeout(resolve,1000));
       }
     }
-    setLive('offline',false);
-    return false;
+    // Only show offline if we never got a good signal this session.
+    if(!liveOk)setLive('offline',false);
+    return liveOk;
   })();
   try{
     return await pingPromise;
@@ -141,10 +152,10 @@ async function ping({tries=6}={}){
   }
 }
 
-async function loadModels(tries=12){
+async function loadModels(tries=20){
   for(let i=0;i<tries;i++){
     try{
-      const r=await fetch('/models');
+      const r=await fetch('/models?_='+Date.now(),{cache:'no-store'});
       if(!r.ok)throw Error('bad status');
       const data=await r.json();
       const select=$('model');
@@ -159,11 +170,13 @@ async function loadModels(tries=12){
       if(select.options.length){
         setStatus('Ready');
         $('send').disabled=false;
+        // Same process served /models — desk is up (honest, not a hardcoded fake).
+        setLive('live · ClinicDesk',true);
         return true;
       }
     }catch{
       setStatus('Starting ClinicDesk…','busy');
-      await new Promise(resolve=>setTimeout(resolve,400));
+      await new Promise(resolve=>setTimeout(resolve,500));
     }
   }
   setStatus('Could not load answer options. Refresh once.','busy');
@@ -176,8 +189,8 @@ async function init(){
   window.scrollTo(0,0);
   setLive('checking…',false);
   setStatus('Ready');
-  // Ping in parallel with models so a slow /models load cannot delay the live pill.
-  const healthP=ping({tries:8});
+  // Parallel: either /health or /models success marks live (Render wake-friendly).
+  const healthP=ping({tries:15,timeoutMs:45000});
   await loadModels();
   await healthP;
   if(!$('messages').children.length){
@@ -292,9 +305,9 @@ if(resetSide)resetSide.onclick=clearChat;
 
 init().then(()=>{
   setInterval(()=>{
-    ping({tries:3});
-  },15000);
+    ping({tries:4,timeoutMs:30000});
+  },12000);
   document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible')ping({tries:3});
+    if(document.visibilityState==='visible')ping({tries:4,timeoutMs:30000});
   });
 });

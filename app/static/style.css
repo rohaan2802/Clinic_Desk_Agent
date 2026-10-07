@@ -18,19 +18,20 @@
   --mono:clamp(13px,1.6vw,15px);
 }
 html[data-theme="light"]{
-  --bg:#eef6f4;
-  --bg2:#dcecea;
-  --ink:#0b1c20;
-  --muted:#33555a;
-  --line:#b7d0cc;
+  /* Max-contrast light: near-black ink on pure white, strong borders */
+  --bg:#ffffff;
+  --bg2:#d9ece8;
+  --ink:#041014;
+  --muted:#123038;
+  --line:#4d7370;
   --card:#ffffff;
-  --card2:#f3faf8;
-  --accent:#0f6b7a;
-  --accent2:#178ea0;
-  --warn:#9a6b12;
-  --user:#d7f1ec;
-  --agent:#e8f3f1;
-  --shadow:0 18px 40px #10222614;
+  --card2:#e7f4f1;
+  --accent:#064e57;
+  --accent2:#0a6a76;
+  --warn:#6b4500;
+  --user:#bfe6df;
+  --agent:#d5ebe6;
+  --shadow:0 14px 32px #0410141f;
 }
 *{box-sizing:border-box}
 html{scroll-padding-top:0;overflow-anchor:none}
@@ -118,6 +119,84 @@ a.doc-link{
   font-weight:600;
 }
 a.doc-link:hover{color:#7cbcff}
+html[data-theme="light"] a.doc-link{color:#0842a0}
+html[data-theme="light"] a.doc-link:hover{color:#052e70}
+html[data-theme="light"] .lede,
+html[data-theme="light"] .hint,
+html[data-theme="light"] .meta,
+html[data-theme="light"] footer,
+html[data-theme="light"] .field span,
+html[data-theme="light"] .field,
+html[data-theme="light"] .panel label,
+html[data-theme="light"] #chat label,
+html[data-theme="light"] .mini pre,
+html[data-theme="light"] .stat span,
+html[data-theme="light"] .live{
+  color:var(--muted);
+}
+html[data-theme="light"] .panel{
+  background:#fff;
+  border-width:2px;
+  border-color:#3f6663;
+}
+html[data-theme="light"] .panel select,
+html[data-theme="light"] .panel textarea,
+html[data-theme="light"] #task,
+html[data-theme="light"] #external{
+  background:#fff;
+  border-width:2px;
+  border-color:#3f6663;
+  color:#041014;
+}
+html[data-theme="light"] .ghost,
+html[data-theme="light"] #theme,
+html[data-theme="light"] #reset,
+html[data-theme="light"] #reset-side,
+html[data-theme="light"] .examples button{
+  color:#041014;
+  border-width:2px;
+  border-color:#3f6663;
+  background:#fff;
+}
+html[data-theme="light"] .top-actions a.ghost{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  border:0;
+  font-weight:700;
+}
+html[data-theme="light"] #send{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  border:0;
+  font-weight:700;
+}
+html[data-theme="light"] .live{
+  border-width:2px;
+  border-color:#3f6663;
+  background:#fff;
+  color:#041014;
+}
+html[data-theme="light"] .live.ok{
+  color:#064e57;
+  border-color:#064e57;
+  background:#e3f5f1;
+}
+html[data-theme="light"] .bubble{
+  border-width:2px;
+  color:#041014;
+}
+html[data-theme="light"] .status-pill{
+  border-width:2px;
+  color:#041014;
+  background:#fff;
+}
+html[data-theme="light"] .brand h1,
+html[data-theme="light"] .top h1{
+  color:#041014;
+}
+html[data-theme="light"] .eyebrow{
+  color:#064e57;
+}
 a.doc-link.top-doc{
   display:inline-flex;
   align-items:center;
