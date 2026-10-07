@@ -98,23 +98,55 @@ function friendlyEvents(events){
   }).join('\n');
 }
 
-async function ping(tries=12){
-  for(let i=0;i<tries;i++){
-    try{
-      const r=await fetch('/health',{cache:'no-store'});
-      if(!r.ok)throw Error('bad status');
-      const data=await r.json();
-      $('live').textContent=data.status==='ok'?'live · ClinicDesk':'down';
-      $('live').classList.toggle('ok',data.status==='ok');
-      return;
-    }catch{
-      $('live').textContent=i===0?'starting…':'waking…';
-      $('live').classList.remove('ok');
-      await new Promise(resolve=>setTimeout(resolve,700));
+// Header "live" pill: sticky status so Render blips don't flicker starting/waking/offline.
+let liveOk=false;
+let pingInFlight=false;
+let failStreak=0;
+
+function setLive(text,ok){
+  const el=$('live');
+  if(!el)return;
+  el.textContent=text;
+  el.classList.toggle('ok',!!ok);
+  liveOk=!!ok;
+}
+
+async function ping({tries=6,announceWake=false}={}){
+  if(pingInFlight)return liveOk;
+  pingInFlight=true;
+  try{
+    for(let i=0;i<tries;i++){
+      try{
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort(),8000);
+        const r=await fetch('/health',{cache:'no-store',signal:controller.signal});
+        clearTimeout(timer);
+        if(!r.ok)throw Error('bad status');
+        const data=await r.json();
+        if(data.status!=='ok')throw Error('not ok');
+        failStreak=0;
+        setLive('live · ClinicDesk',true);
+        return true;
+      }catch{
+        failStreak+=1;
+        // Keep last good "live" through brief Render / network blips.
+        if(liveOk&&failStreak<3){
+          await new Promise(resolve=>setTimeout(resolve,500));
+          continue;
+        }
+        if(liveOk){
+          setLive('reconnecting…',false);
+        }else if(announceWake){
+          setLive(i===0?'starting…':'waking…',false);
+        }
+        await new Promise(resolve=>setTimeout(resolve,700));
+      }
     }
+    setLive('offline',false);
+    return false;
+  }finally{
+    pingInFlight=false;
   }
-  $('live').textContent='offline';
-  $('live').classList.remove('ok');
 }
 
 async function loadModels(tries=12){
@@ -150,9 +182,11 @@ async function loadModels(tries=12){
 async function init(){
   if(history.scrollRestoration)history.scrollRestoration='manual';
   window.scrollTo(0,0);
+  // HTML already loaded from this host ⇒ process is up. Don't flash waking/offline.
+  setLive('live · ClinicDesk',true);
   setStatus('Starting ClinicDesk…','busy');
   await loadModels();
-  await ping();
+  await ping({tries:8,announceWake:false});
   if(!$('messages').children.length){
     bubble('agent','Hi. I can find open times, book a visit, show a student’s visits, cancel, or move a visit. Use a chip below, or type something like “Book a general visit tomorrow morning for student S-1001”.');
   }
@@ -263,5 +297,9 @@ $('reset').onclick=clearChat;
 const resetSide=$('reset-side');
 if(resetSide)resetSide.onclick=clearChat;
 
-init();
-setInterval(ping,15000);
+init().then(()=>{
+  // Quiet background checks only — never start a second loop while one is running.
+  setInterval(()=>{
+    ping({tries:3,announceWake:false});
+  },30000);
+});
