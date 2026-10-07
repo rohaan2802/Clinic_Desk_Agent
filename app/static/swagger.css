@@ -201,8 +201,10 @@
 #swagger .swagger-ui button.btn.execute{
   flex:0 0 auto!important;
   width:auto!important;
-  min-width:110px!important;
-  max-width:150px!important;
+  min-width:140px!important;
+  max-width:200px!important;
+  padding-left:28px!important;
+  padding-right:28px!important;
   border-radius:10px!important;
   display:inline-flex!important;
   align-items:center!important;
@@ -497,8 +499,10 @@ html[data-theme="dark"] .schema-note{
   #swagger .swagger-ui button.btn.execute{
     flex:0 0 auto!important;
     width:auto!important;
-    min-width:110px!important;
-    max-width:140px!important;
+    min-width:140px!important;
+    max-width:200px!important;
+    padding-left:28px!important;
+    padding-right:28px!important;
     border-radius:10px!important;
   }
   #swagger .swagger-ui .execute-wrapper .btn-clear,
@@ -693,8 +697,10 @@ html[data-theme="dark"] .schema-note{
   #swagger .swagger-ui button.btn.execute{
     flex:0 0 auto!important;
     width:auto!important;
-    min-width:110px!important;
-    max-width:140px!important;
+    min-width:140px!important;
+    max-width:200px!important;
+    padding-left:28px!important;
+    padding-right:28px!important;
     border-radius:10px!important;
     box-sizing:border-box!important;
   }
