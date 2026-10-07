@@ -144,8 +144,7 @@ These 20 screenshots were taken from the **live** deployment and show the comple
 27. [Deployment notes](#25-deployment-notes)
 28. [Limitations](#26-limitations)
 29. [Assignment requirements checklist](#27-assignment-requirements-checklist)
-30. [What is still left for you (final touches)](#28-what-is-still-left-for-you-final-touches)
-31. [Troubleshooting](#29-troubleshooting)
+30. [Troubleshooting](#28-troubleshooting)
 
 ---
 
@@ -641,22 +640,10 @@ Cold start: free instances may sleep; first wake can take about a minute. In-mem
 
 ---
 
-## 28. What is still left for you (final touches)
-
-Besides deployment (and instructor GitHub username when posted):
-
-1. **Render Free deploy** → paste live URLs into `SUBMISSION.md` and the PDF  
-2. **Invite instructor** as collaborator when the Classroom note shows their GitHub username  
-3. **Classroom ZIP + PDF** (`i222327.zip`, `i222327_submission.pdf`) and Turn in  
-4. After this push, copy the **new commit hash** into `SUBMISSION.md` / PDF if required  
-5. Optional: run model comparison with a real Gemini key and fill `evaluation/model_comparison.json`  
-6. Before any demo: **Clear** + walk section 22 once  
-
-Code/agent side for the assignment is complete for local + test demonstration.
 
 ---
 
-## 29. Troubleshooting
+## 28. Troubleshooting
 
 | Symptom | What to do |
 |---|---|
