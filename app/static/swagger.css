@@ -165,11 +165,30 @@
   font-size:16px!important;
   font-weight:600!important;
 }
-#swagger .swagger-ui .btn.execute{
-  font-size:17px!important;
-  min-height:44px!important;
-  padding:10px 22px!important;
+#swagger .swagger-ui .btn.execute,
+#swagger .swagger-ui .execute-wrapper .btn,
+#swagger .swagger-ui .btn-clear,
+#swagger .swagger-ui button.btn.btn-clear,
+#swagger .swagger-ui .btn.cancel{
+  font-size:16px!important;
+  min-height:42px!important;
+  max-height:42px!important;
+  padding:8px 18px!important;
   font-weight:700!important;
+  border-radius:10px!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+#swagger .swagger-ui .execute-wrapper{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:12px!important;
+  align-items:center!important;
+}
+#swagger .swagger-ui .execute-wrapper .btn{
+  flex:1 1 auto!important;
+  min-width:120px!important;
+  margin:0!important;
 }
 #swagger .swagger-ui textarea,
 #swagger .swagger-ui input,
@@ -190,13 +209,14 @@
 #swagger .swagger-ui .btn.cancel{
   background:var(--accent)!important;
   color:#041210!important;
-  border:0!important;
-  border-radius:10px!important;
-  min-height:44px!important;
-  padding:10px 20px!important;
-  font-size:17px!important;
-  font-weight:700!important;
   box-shadow:0 8px 20px #0005!important;
+}
+#swagger .swagger-ui .opblock-section-header .btn.cancel,
+#swagger .swagger-ui .btn.try-out__btn.cancel{
+  width:auto!important;
+  min-width:88px!important;
+  max-width:120px!important;
+  flex:0 0 auto!important;
 }
 
 html[data-theme="dark"] #swagger .swagger-ui,
@@ -435,15 +455,26 @@ html[data-theme="dark"] .schema-note{
     border:0!important;
   }
 
-  #swagger .swagger-ui .btn.execute,
-  #swagger .swagger-ui .btn-clear,
-  #swagger .swagger-ui button.btn.btn-clear,
-  #swagger .swagger-ui .btn.cancel{
-    width:100%!important;
-    max-width:100%!important;
-  }
   #swagger .swagger-ui .execute-wrapper{
     padding:8px 0!important;
+    gap:12px!important;
+  }
+  #swagger .swagger-ui .execute-wrapper .btn.execute,
+  #swagger .swagger-ui .execute-wrapper .btn-clear,
+  #swagger .swagger-ui .execute-wrapper button.btn.btn-clear{
+    flex:1 1 calc(50% - 6px)!important;
+    width:auto!important;
+    max-width:100%!important;
+    border-radius:10px!important;
+  }
+  #swagger .swagger-ui .opblock-section-header .btn.cancel,
+  #swagger .swagger-ui .btn.try-out__btn.cancel{
+    width:auto!important;
+    max-width:110px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+    padding:6px 14px!important;
+    font-size:15px!important;
   }
   #swagger .swagger-ui textarea,
   #swagger .swagger-ui .body-param textarea,
@@ -609,18 +640,25 @@ html[data-theme="dark"] .schema-note{
     word-break:break-word!important;
   }
 
-  #swagger .swagger-ui .btn,
-  #swagger .swagger-ui .btn.execute,
-  #swagger .swagger-ui .execute-wrapper .btn,
-  #swagger .swagger-ui .btn-clear,
-  #swagger .swagger-ui button.btn.btn-clear,
-  #swagger .swagger-ui .btn.cancel{
-    width:100%!important;
-    max-width:100%!important;
-    box-sizing:border-box!important;
-  }
   #swagger .swagger-ui .execute-wrapper{
     padding:8px 0!important;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:12px!important;
+  }
+  #swagger .swagger-ui .execute-wrapper .btn.execute,
+  #swagger .swagger-ui .execute-wrapper .btn-clear,
+  #swagger .swagger-ui .execute-wrapper button.btn.btn-clear{
+    flex:1 1 calc(50% - 6px)!important;
+    width:auto!important;
+    max-width:100%!important;
+    border-radius:10px!important;
+    box-sizing:border-box!important;
+  }
+  #swagger .swagger-ui .opblock-section-header .btn.cancel,
+  #swagger .swagger-ui .btn.try-out__btn.cancel{
+    width:auto!important;
+    max-width:110px!important;
   }
   #swagger .swagger-ui .tab,
   #swagger .swagger-ui .tab li,

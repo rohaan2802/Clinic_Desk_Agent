@@ -170,15 +170,11 @@ footer{max-width:1280px;margin:22px auto 0}
   .bubble.user,.bubble.agent{margin-left:0;margin-right:0}
 }
 @media (max-width:640px){
-  body{padding:12px 12px 36px}
-  .brand h1,.top h1{font-size:clamp(32px,10vw,44px)}
-  .lede{font-size:15px;line-height:1.5;margin-bottom:16px;overflow-wrap:anywhere}
   .top-actions{width:100%}
-  .top-actions a,.top-actions button{flex:1;text-align:center;min-width:0;justify-content:center}
+  .top-actions a,.top-actions button{flex:1;text-align:center}
   #task,#external{min-height:130px}
   #send{width:100%}
   .send-row{display:grid}
-  a.doc-link.top-doc{flex:1;justify-content:center;text-align:center}
 }
 @media (min-width:1600px){
   :root{--font:22px;--title:56px}
