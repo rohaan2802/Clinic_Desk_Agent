@@ -98,11 +98,11 @@ function friendlyEvents(events){
   }).join('\n');
 }
 
-// Header "live" pill — must stay stable on Render Free.
-// Correct steady text: "live · ClinicDesk" (not checking/waking/starting/offline loops).
-let liveOk=true;
+// Header live pill — real /health result, without starting/waking flicker spam.
+// live · ClinicDesk  = /health ok
+// offline            = /health failed after retries (honest)
+let liveOk=false;
 let pingInFlight=false;
-let failStreak=0;
 
 function setLive(text,ok){
   const el=$('live');
@@ -112,7 +112,7 @@ function setLive(text,ok){
   liveOk=!!ok;
 }
 
-async function ping({tries=4,allowOffline=false}={}){
+async function ping({tries=4}={}){
   if(pingInFlight)return liveOk;
   pingInFlight=true;
   try{
@@ -125,22 +125,19 @@ async function ping({tries=4,allowOffline=false}={}){
         if(!r.ok)throw Error('bad status');
         const data=await r.json();
         if(data.status!=='ok')throw Error('not ok');
-        failStreak=0;
         setLive('live · ClinicDesk',true);
         return true;
       }catch{
-        failStreak+=1;
+        // Keep last good "live" through short blips; don't flash starting/waking.
+        if(!liveOk){
+          setLive('checking…',false);
+        }
         await new Promise(resolve=>setTimeout(resolve,600));
       }
     }
-    // Page HTML already loaded from this host ⇒ desk is up. Don't scare with offline
-    // unless a quiet background check fails repeatedly.
-    if(allowOffline&&failStreak>=6){
-      setLive('offline',false);
-      return false;
-    }
-    setLive('live · ClinicDesk',true);
-    return liveOk;
+    // Confirmed failure after retries — show real offline (not fake live).
+    setLive('offline',false);
+    return false;
   }finally{
     pingInFlight=false;
   }
@@ -179,11 +176,10 @@ async function loadModels(tries=12){
 async function init(){
   if(history.scrollRestoration)history.scrollRestoration='manual';
   window.scrollTo(0,0);
-  // Desk page loaded ⇒ API process is already serving. Always show live first.
-  setLive('live · ClinicDesk',true);
+  setLive('checking…',false);
   setStatus('Ready');
   await loadModels();
-  await ping({tries:3,allowOffline:false});
+  await ping({tries:5});
   if(!$('messages').children.length){
     bubble('agent','Hi. I can find open times, book a visit, show a student’s visits, cancel, or move a visit. Use a chip below, or type something like “Book a general visit tomorrow morning for student S-1001”.');
   }
@@ -296,6 +292,6 @@ if(resetSide)resetSide.onclick=clearChat;
 
 init().then(()=>{
   setInterval(()=>{
-    ping({tries:3,allowOffline:true});
-  },45000);
+    ping({tries:3});
+  },30000);
 });
