@@ -180,7 +180,9 @@
   border:0!important;
   box-sizing:border-box!important;
 }
-/* Execute + Clear row: always centered as a group */
+/* Swagger puts Execute+Clear in .btn-group (not only .execute-wrapper) */
+#swagger .swagger-ui .btn-group,
+#swagger .swagger-ui .opblock-body .btn-group,
 #swagger .swagger-ui .execute-wrapper,
 #swagger .swagger-ui .opblock-body .execute-wrapper,
 #swagger .swagger-ui .opblock .execute-wrapper{
@@ -196,11 +198,15 @@
   text-align:center!important;
   width:100%!important;
   max-width:100%!important;
-  margin:0 auto!important;
+  margin:12px auto!important;
   padding:12px 0!important;
   float:none!important;
 }
 /* Equal length when both shown; solo Execute a bit wider */
+#swagger .swagger-ui .btn-group .btn,
+#swagger .swagger-ui .btn-group .btn.execute,
+#swagger .swagger-ui .btn-group .btn-clear,
+#swagger .swagger-ui .btn-group button.btn.btn-clear,
 #swagger .swagger-ui .execute-wrapper .btn,
 #swagger .swagger-ui .execute-wrapper .btn.execute,
 #swagger .swagger-ui .execute-wrapper .btn-clear,
@@ -220,6 +226,8 @@
   align-items:center!important;
   justify-content:center!important;
 }
+#swagger .swagger-ui .btn-group .btn.execute:only-child,
+#swagger .swagger-ui .btn-group:not(:has(.btn-clear)) .btn.execute,
 #swagger .swagger-ui .execute-wrapper .btn.execute:only-child,
 #swagger .swagger-ui .execute-wrapper:not(:has(.btn-clear)) .btn.execute,
 #swagger .swagger-ui .execute-wrapper:not(:has(button.btn-clear)) button.btn.execute{
@@ -494,13 +502,17 @@ html[data-theme="dark"] .schema-note{
     border:0!important;
   }
 
+  #swagger .swagger-ui .btn-group,
   #swagger .swagger-ui .execute-wrapper{
     padding:12px 0!important;
     gap:16px!important;
     justify-content:center!important;
     place-content:center!important;
     margin:0 auto!important;
+    width:100%!important;
   }
+  #swagger .swagger-ui .btn-group .btn.execute,
+  #swagger .swagger-ui .btn-group .btn-clear,
   #swagger .swagger-ui .execute-wrapper .btn.execute,
   #swagger .swagger-ui .execute-wrapper .btn-clear,
   #swagger .swagger-ui .execute-wrapper button.btn.btn-clear,
@@ -514,6 +526,8 @@ html[data-theme="dark"] .schema-note{
     padding:8px 20px!important;
     border-radius:10px!important;
   }
+  #swagger .swagger-ui .btn-group .btn.execute:only-child,
+  #swagger .swagger-ui .btn-group:not(:has(.btn-clear)) .btn.execute,
   #swagger .swagger-ui .execute-wrapper .btn.execute:only-child,
   #swagger .swagger-ui .execute-wrapper:not(:has(.btn-clear)) .btn.execute{
     flex:0 0 260px!important;
@@ -695,6 +709,7 @@ html[data-theme="dark"] .schema-note{
     word-break:break-word!important;
   }
 
+  #swagger .swagger-ui .btn-group,
   #swagger .swagger-ui .execute-wrapper{
     padding:12px 0!important;
     display:flex!important;
@@ -703,7 +718,10 @@ html[data-theme="dark"] .schema-note{
     justify-content:center!important;
     place-content:center!important;
     margin:0 auto!important;
+    width:100%!important;
   }
+  #swagger .swagger-ui .btn-group .btn.execute,
+  #swagger .swagger-ui .btn-group .btn-clear,
   #swagger .swagger-ui .execute-wrapper .btn.execute,
   #swagger .swagger-ui .execute-wrapper .btn-clear,
   #swagger .swagger-ui .execute-wrapper button.btn.btn-clear,
@@ -718,6 +736,8 @@ html[data-theme="dark"] .schema-note{
     border-radius:10px!important;
     box-sizing:border-box!important;
   }
+  #swagger .swagger-ui .btn-group .btn.execute:only-child,
+  #swagger .swagger-ui .btn-group:not(:has(.btn-clear)) .btn.execute,
   #swagger .swagger-ui .execute-wrapper .btn.execute:only-child,
   #swagger .swagger-ui .execute-wrapper:not(:has(.btn-clear)) .btn.execute{
     flex:0 0 260px!important;
