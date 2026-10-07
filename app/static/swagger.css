@@ -165,7 +165,7 @@
   font-size:16px!important;
   font-weight:600!important;
 }
-/* Execute + Clear: same box shape + gap on every viewport */
+/* Execute + Clear: same box shape; never stuck together (all viewports) */
 #swagger .swagger-ui .btn.execute,
 #swagger .swagger-ui .execute-wrapper .btn,
 #swagger .swagger-ui .btn-clear,
@@ -184,9 +184,9 @@
   display:flex!important;
   flex-direction:row!important;
   flex-wrap:wrap!important;
-  gap:14px!important;
-  row-gap:14px!important;
-  column-gap:14px!important;
+  gap:16px!important;
+  row-gap:16px!important;
+  column-gap:16px!important;
   align-items:center!important;
   justify-content:flex-start!important;
 }
@@ -196,13 +196,20 @@
 #swagger .swagger-ui .execute-wrapper button.btn.btn-clear{
   flex:0 1 auto!important;
   min-width:120px!important;
-  margin:0!important;
   border-radius:10px!important;
 }
+#swagger .swagger-ui .execute-wrapper .btn.execute{
+  margin:0!important;
+}
+/* Hard gap even if flex gap is ignored by Swagger defaults */
+#swagger .swagger-ui .execute-wrapper .btn-clear,
+#swagger .swagger-ui .execute-wrapper button.btn.btn-clear,
 #swagger .swagger-ui .execute-wrapper .btn.execute + .btn,
 #swagger .swagger-ui .execute-wrapper .btn.execute + .btn-clear,
-#swagger .swagger-ui .execute-wrapper .btn.execute + button{
-  margin-left:0!important;
+#swagger .swagger-ui .execute-wrapper .btn.execute + button,
+#swagger .swagger-ui .btn.execute + .btn-clear,
+#swagger .swagger-ui .btn.execute + button.btn-clear{
+  margin:0 0 0 16px!important;
 }
 #swagger .swagger-ui textarea,
 #swagger .swagger-ui input,
@@ -471,15 +478,23 @@ html[data-theme="dark"] .schema-note{
 
   #swagger .swagger-ui .execute-wrapper{
     padding:8px 0!important;
-    gap:12px!important;
+    gap:16px!important;
+    column-gap:16px!important;
+    row-gap:16px!important;
   }
   #swagger .swagger-ui .execute-wrapper .btn.execute,
   #swagger .swagger-ui .execute-wrapper .btn-clear,
   #swagger .swagger-ui .execute-wrapper button.btn.btn-clear{
-    flex:1 1 calc(50% - 6px)!important;
+    flex:1 1 calc(50% - 16px)!important;
     width:auto!important;
-    max-width:100%!important;
+    max-width:calc(50% - 8px)!important;
     border-radius:10px!important;
+  }
+  #swagger .swagger-ui .execute-wrapper .btn-clear,
+  #swagger .swagger-ui .execute-wrapper button.btn.btn-clear,
+  #swagger .swagger-ui .execute-wrapper .btn.execute + .btn,
+  #swagger .swagger-ui .btn.execute + .btn-clear{
+    margin:0 0 0 16px!important;
   }
   #swagger .swagger-ui .opblock-section-header .btn.cancel,
   #swagger .swagger-ui .btn.try-out__btn.cancel{
@@ -658,16 +673,23 @@ html[data-theme="dark"] .schema-note{
     padding:8px 0!important;
     display:flex!important;
     flex-wrap:wrap!important;
-    gap:12px!important;
+    gap:16px!important;
+    column-gap:16px!important;
+    row-gap:16px!important;
   }
   #swagger .swagger-ui .execute-wrapper .btn.execute,
   #swagger .swagger-ui .execute-wrapper .btn-clear,
   #swagger .swagger-ui .execute-wrapper button.btn.btn-clear{
-    flex:1 1 calc(50% - 6px)!important;
+    flex:1 1 calc(50% - 16px)!important;
     width:auto!important;
-    max-width:100%!important;
+    max-width:calc(50% - 8px)!important;
     border-radius:10px!important;
     box-sizing:border-box!important;
+  }
+  #swagger .swagger-ui .execute-wrapper .btn-clear,
+  #swagger .swagger-ui .execute-wrapper button.btn.btn-clear,
+  #swagger .swagger-ui .btn.execute + .btn-clear{
+    margin:0 0 0 16px!important;
   }
   #swagger .swagger-ui .opblock-section-header .btn.cancel,
   #swagger .swagger-ui .btn.try-out__btn.cancel{
