@@ -63,6 +63,16 @@ def index():
     )
 
 
+@router.get('/static/app.js', include_in_schema=False)
+def app_js():
+    # Beat CDN/browser cache after live-status fixes (must be registered before StaticFiles mount).
+    return FileResponse(
+        ROOT / 'app/static/app.js',
+        media_type='application/javascript; charset=utf-8',
+        headers={'Cache-Control': 'no-store'},
+    )
+
+
 def _health_payload() -> dict:
     return {
         'status': 'ok',
