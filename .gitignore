@@ -8,3 +8,4 @@ __pycache__/
 node_modules/
 .pytest_cache/
 *.log
+scripts/live_qa_last.txt
