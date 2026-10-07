@@ -57,7 +57,10 @@ def _pretty_page(title: str, sub: str, data) -> HTMLResponse:
 
 @router.get('/', summary='Open the clinic desk page')
 def index():
-    return FileResponse(ROOT / 'app/static/index.html')
+    return FileResponse(
+        ROOT / 'app/static/index.html',
+        headers={'Cache-Control': 'no-store'},
+    )
 
 
 def _health_payload() -> dict:
