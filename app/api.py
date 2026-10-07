@@ -1,6 +1,4 @@
 import json
-from urllib.parse import quote
-
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 
@@ -14,10 +12,47 @@ from app.sandbox import clear_sandbox
 router = APIRouter(tags=['Clinic endpoints'])
 
 
-def _pretty_page(src: str, title: str, sub: str) -> RedirectResponse:
-    """Human-friendly JSON document page (opens as structured blank view)."""
-    query = f'src={quote(src, safe="")}&title={quote(title)}&sub={quote(sub)}'
-    return RedirectResponse(url=f'/json-view?{query}', status_code=307)
+def _pretty_page(title: str, sub: str, data) -> HTMLResponse:
+    """Human-friendly JSON document — data is embedded so no second fetch can fail."""
+    body = json.dumps(data, indent=2, ensure_ascii=True)
+    # Escape for HTML text node (not a script context).
+    safe = (
+        body.replace('&', '&amp;')
+        .replace('<', '&lt;')
+        .replace('>', '&gt;')
+    )
+    html = f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>{title} · ClinicDesk</title>
+  <style>
+    :root{{color-scheme:dark}}
+    html,body{{margin:0;min-height:100%;background:#070c0d;color:#eef8f5;font:18px/1.55 Sora,system-ui,sans-serif}}
+    .wrap{{max-width:980px;margin:0 auto;padding:28px 22px 48px}}
+    .eyebrow{{margin:0 0 6px;color:#3de0c5;letter-spacing:.12em;text-transform:uppercase;font-size:13px;font-weight:700}}
+    h1{{margin:0 0 8px;font-size:clamp(28px,5vw,40px);letter-spacing:-.03em}}
+    .sub{{margin:0 0 22px;color:#9fb8b2;font-size:16px}}
+    .panel{{
+      margin:0;padding:22px 24px;border-radius:18px;border:1px solid #1d3a40;
+      background:#10242b;box-shadow:0 18px 40px #0006;
+      font:16px/1.55 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;
+      color:#f4fffb;
+    }}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">ClinicDesk</p>
+    <h1>{title}</h1>
+    <p class="sub">{sub}</p>
+    <pre class="panel">{safe}</pre>
+  </div>
+</body>
+</html>"""
+    return HTMLResponse(html, headers={'Cache-Control': 'no-store'})
 
 
 @router.get('/', summary='Open the clinic desk page')
@@ -51,35 +86,45 @@ def health_ui():
 
 @router.get('/health-raw', summary='Open health data as a pretty page')
 def health_raw():
-    return _pretty_page('/health', 'Health snapshot', 'Live ClinicDesk status as structured JSON')
+    return _pretty_page(
+        'Health snapshot',
+        'Live ClinicDesk status as structured JSON',
+        _health_payload(),
+    )
 
 
 @router.get('/openapi', include_in_schema=False)
-def openapi_pretty():
+def openapi_pretty(request: Request):
     return _pretty_page(
-        '/openapi-spec',
         'OpenAPI contract',
         'Full machine-readable list of ClinicDesk endpoints, request bodies, and responses',
+        request.app.openapi(),
     )
 
 
 @router.get('/manifest', include_in_schema=False)
 def manifest_pretty():
+    data = json.loads((ROOT / 'arena_manifest.json').read_text(encoding='utf-8'))
     return _pretty_page(
-        '/arena/manifest',
         'Arena manifest',
         'Assignment contract: tools, faults, limits, and Arena version',
+        data,
     )
 
 
 @router.get('/models-view', include_in_schema=False)
 def models_pretty():
-    return _pretty_page('/models', 'Answer models', 'Models enabled for this ClinicDesk process')
+    return _pretty_page(
+        'Answer models',
+        'Models enabled for this ClinicDesk process',
+        {'models': configured_models()},
+    )
 
 
 @router.get('/json-view', include_in_schema=False)
 def json_view_page():
-    return FileResponse(ROOT / 'app/static/json-view.html')
+    # Legacy bookmarks still work; preferred routes embed JSON directly.
+    return FileResponse(ROOT / 'app/static/json-view.html', headers={'Cache-Control': 'no-store'})
 
 
 @router.get('/docs', include_in_schema=False)

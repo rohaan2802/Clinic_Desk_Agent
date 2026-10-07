@@ -36,19 +36,27 @@
     document.title=title+' · ClinicDesk';
     document.getElementById('heading').textContent=title;
     document.getElementById('sub').textContent=sub;
-    fetch(src)
-      .then(r=>{
-        if(!r.ok)throw Error('HTTP '+r.status);
-        return r.json();
-      })
-      .then(data=>{
-        document.getElementById('json').textContent=JSON.stringify(data,null,2);
-      })
-      .catch(err=>{
-        const el=document.getElementById('json');
-        el.classList.add('err');
-        el.textContent='Could not load this document.\n'+String(err&&err.message||err);
-      });
+
+    async function loadDoc(tries){
+      for(let i=0;i<tries;i++){
+        try{
+          const r=await fetch(src,{cache:'no-store'});
+          if(!r.ok)throw Error('HTTP '+r.status);
+          const data=await r.json();
+          document.getElementById('json').textContent=JSON.stringify(data,null,2);
+          return;
+        }catch(err){
+          const el=document.getElementById('json');
+          el.classList.remove('err');
+          el.textContent=i===0?'Loading…':('Waking Render… try '+(i+1)+'/'+tries);
+          await new Promise(resolve=>setTimeout(resolve,900));
+        }
+      }
+      const el=document.getElementById('json');
+      el.classList.add('err');
+      el.textContent='Could not load this document.\nRefresh once — Render Free may still be waking up.\nOr open /health-raw (embedded, no fetch).';
+    }
+    loadDoc(20);
   </script>
 </body>
 </html>
