@@ -2,7 +2,7 @@
 
 **FAST-NUCES Agent Arena Assignment**  
 **Student:** Mohammad Rohaan · **Roll:** 22I-2327 (`i222327`) · **Section:** A  
-**Repository:** https://github.com/rohaan2802/i222327-clinicdesk  
+**Repository:** https://github.com/rohaan2802/Clinic_Desk_Agent  
 **Agent name:** ClinicDesk  
 **Domain:** Campus clinic appointment desk (synthetic / practice data only)
 
@@ -10,37 +10,143 @@ This README is the full handbook for the project. It explains what the assignmen
 
 ---
 
+## Live Demo
+
+**Live dashboard (ClinicDesk Desk UI):**  
+https://clinic-desk-agent.onrender.com/
+
+**Other live pages**
+
+- Health board: https://clinic-desk-agent.onrender.com/health-ui  
+- Health JSON snapshot: https://clinic-desk-agent.onrender.com/health-raw  
+- API docs: https://clinic-desk-agent.onrender.com/docs  
+- OpenAPI contract: https://clinic-desk-agent.onrender.com/openapi  
+- Arena manifest: https://clinic-desk-agent.onrender.com/arena/manifest  
+- Health API: https://clinic-desk-agent.onrender.com/health  
+
+> Note: Render Free may sleep when idle. The first open can take about 30–60 seconds to wake.
+
+---
+
+## Working screenshots (full project walkthrough)
+
+These 20 screenshots were taken from the **live** deployment and show the complete ClinicDesk flow end to end.
+
+### 1. Desk home (live dashboard)
+
+![Desk home](docs/screenshots/01-desk-home.png)
+
+### 2. Answer model options loaded
+
+![Model options](docs/screenshots/02-desk-model-options.png)
+
+### 3. Search dental slots (no student id required)
+
+![Search dental slots](docs/screenshots/03-search-dental-slots.png)
+
+### 4. Greeting / clarify path (`hi`)
+
+![Greeting clarify](docs/screenshots/04-greeting-clarify.png)
+
+### 5. Vague booking asks for student id
+
+![Book needs student id](docs/screenshots/05-book-needs-student-id.png)
+
+### 6. Successful booking completed
+
+![Book completed](docs/screenshots/06-book-completed.png)
+
+### 7. List appointments for a student
+
+![List appointments](docs/screenshots/07-list-appointments.png)
+
+### 8. Same-day cancel needs staff approval
+
+![Same-day approval](docs/screenshots/08-same-day-approval.png)
+
+### 9. Future cancel completed
+
+![Future cancel](docs/screenshots/09-future-cancel.png)
+
+### 10. Prompt injection blocked
+
+![Injection blocked](docs/screenshots/10-injection-blocked.png)
+
+### 11. Untrusted Extra note ignored (list still works)
+
+![Untrusted note ignored](docs/screenshots/11-untrusted-note-ignored.png)
+
+### 12. Status panel and side details after a run
+
+![Status and side panel](docs/screenshots/12-status-and-side-panel.png)
+
+### 13. Clear resets chat and sandbox
+
+![Clear new chat](docs/screenshots/13-clear-new-chat.png)
+
+### 14. Health board (one card per row)
+
+![Health board](docs/screenshots/14-health-board.png)
+
+### 15. Health snapshot (pretty JSON page)
+
+![Health snapshot JSON](docs/screenshots/15-health-snapshot-json.png)
+
+### 16. API documentation overview
+
+![API docs overview](docs/screenshots/16-api-docs-overview.png)
+
+### 17. API endpoint detail / Try it out area
+
+![API endpoint detail](docs/screenshots/17-api-endpoint-detail.png)
+
+### 18. OpenAPI contract (structured blank page)
+
+![OpenAPI contract](docs/screenshots/18-openapi-contract.png)
+
+### 19. Arena manifest (grader contract)
+
+![Arena manifest](docs/screenshots/19-arena-manifest.png)
+
+### 20. Reschedule flow on the live desk
+
+![Reschedule flow](docs/screenshots/20-reschedule-flow.png)
+
+---
+
 ## Table of contents
 
-1. [What the assignment was about](#1-what-the-assignment-was-about)
-2. [What ClinicDesk is (in plain language)](#2-what-clinicdesk-is-in-plain-language)
-3. [Who would use this in real life](#3-who-would-use-this-in-real-life)
-4. [Measurable success — when is a run “done”?](#4-measurable-success--when-is-a-run-done)
-5. [Design canvas (assignment style)](#5-design-canvas-assignment-style)
-6. [Architecture — step by step request path](#6-architecture--step-by-step-request-path)
-7. [Every important file and what it does](#7-every-important-file-and-what-it-does)
-8. [Pages and links in the product](#8-pages-and-links-in-the-product)
-9. [The five clinic tools](#9-the-five-clinic-tools)
-10. [Sandbox data and seed appointments](#10-sandbox-data-and-seed-appointments)
-11. [Models: built-in, Gemini, OpenRouter](#11-models-built-in-gemini-openrouter)
-12. [Why answers stay accurate (authority design)](#12-why-answers-stay-accurate-authority-design)
-13. [Memory, Clear, and chat sessions](#13-memory-clear-and-chat-sessions)
-14. [Extra note (untrusted context)](#14-extra-note-untrusted-context)
-15. [Faults, budgets, and safety limits](#15-faults-budgets-and-safety-limits)
-16. [Problems we faced and how we fixed them](#16-problems-we-faced-and-how-we-fixed-them)
-17. [Setup and run (step by step)](#17-setup-and-run-step-by-step)
-18. [How to run every test](#18-how-to-run-every-test)
-19. [Normal test cases with expected results](#19-normal-test-cases-with-expected-results)
-20. [Public evaluation cases](#20-public-evaluation-cases)
-21. [Agent-breaking / adversarial test cases](#21-agent-breaking--adversarial-test-cases)
-22. [Desk manual checklist (copy-paste prompts)](#22-desk-manual-checklist-copy-paste-prompts)
-23. [API section explained](#23-api-section-explained)
-24. [Worked JSON examples](#24-worked-json-examples)
-25. [Deployment notes](#25-deployment-notes)
-26. [Limitations](#26-limitations)
-27. [Assignment requirements checklist](#27-assignment-requirements-checklist)
-28. [What is still left for you (final touches)](#28-what-is-still-left-for-you-final-touches)
-29. [Troubleshooting](#29-troubleshooting)
+1. [Live Demo](#live-demo)
+2. [Working screenshots (full project walkthrough)](#working-screenshots-full-project-walkthrough)
+3. [What the assignment was about](#1-what-the-assignment-was-about)
+4. [What ClinicDesk is (in plain language)](#2-what-clinicdesk-is-in-plain-language)
+5. [Who would use this in real life](#3-who-would-use-this-in-real-life)
+6. [Measurable success — when is a run “done”?](#4-measurable-success--when-is-a-run-done)
+7. [Design canvas (assignment style)](#5-design-canvas-assignment-style)
+8. [Architecture — step by step request path](#6-architecture--step-by-step-request-path)
+9. [Every important file and what it does](#7-every-important-file-and-what-it-does)
+10. [Pages and links in the product](#8-pages-and-links-in-the-product)
+11. [The five clinic tools](#9-the-five-clinic-tools)
+12. [Sandbox data and seed appointments](#10-sandbox-data-and-seed-appointments)
+13. [Models: built-in, Gemini, OpenRouter](#11-models-built-in-gemini-openrouter)
+14. [Why answers stay accurate (authority design)](#12-why-answers-stay-accurate-authority-design)
+15. [Memory, Clear, and chat sessions](#13-memory-clear-and-chat-sessions)
+16. [Extra note (untrusted context)](#14-extra-note-untrusted-context)
+17. [Faults, budgets, and safety limits](#15-faults-budgets-and-safety-limits)
+18. [Problems we faced and how we fixed them](#16-problems-we-faced-and-how-we-fixed-them)
+19. [Setup and run (step by step)](#17-setup-and-run-step-by-step)
+20. [How to run every test](#18-how-to-run-every-test)
+21. [Normal test cases with expected results](#19-normal-test-cases-with-expected-results)
+22. [Public evaluation cases](#20-public-evaluation-cases)
+23. [Agent-breaking / adversarial test cases](#21-agent-breaking--adversarial-test-cases)
+24. [Desk manual checklist (copy-paste prompts)](#22-desk-manual-checklist-copy-paste-prompts)
+25. [API section explained](#23-api-section-explained)
+26. [Worked JSON examples](#24-worked-json-examples)
+27. [Deployment notes](#25-deployment-notes)
+28. [Limitations](#26-limitations)
+29. [Assignment requirements checklist](#27-assignment-requirements-checklist)
+30. [What is still left for you (final touches)](#28-what-is-still-left-for-you-final-touches)
+31. [Troubleshooting](#29-troubleshooting)
 
 ---
 
