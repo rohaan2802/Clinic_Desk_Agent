@@ -180,7 +180,10 @@
   border:0!important;
   box-sizing:border-box!important;
 }
-#swagger .swagger-ui .execute-wrapper{
+/* Execute + Clear row: always centered as a group */
+#swagger .swagger-ui .execute-wrapper,
+#swagger .swagger-ui .opblock-body .execute-wrapper,
+#swagger .swagger-ui .opblock .execute-wrapper{
   display:flex!important;
   flex-direction:row!important;
   flex-wrap:wrap!important;
@@ -189,11 +192,15 @@
   column-gap:16px!important;
   align-items:center!important;
   justify-content:center!important;
+  place-content:center!important;
   text-align:center!important;
   width:100%!important;
-  padding:10px 0!important;
+  max-width:100%!important;
+  margin:0 auto!important;
+  padding:12px 0!important;
+  float:none!important;
 }
-/* Equal length when both shown; solo Execute a bit wider; always centered */
+/* Equal length when both shown; solo Execute a bit wider */
 #swagger .swagger-ui .execute-wrapper .btn,
 #swagger .swagger-ui .execute-wrapper .btn.execute,
 #swagger .swagger-ui .execute-wrapper .btn-clear,
@@ -205,6 +212,8 @@
   width:210px!important;
   min-width:210px!important;
   max-width:210px!important;
+  margin:0!important;
+  float:none!important;
   padding:8px 20px!important;
   border-radius:10px!important;
   display:inline-flex!important;
@@ -218,19 +227,7 @@
   width:260px!important;
   min-width:260px!important;
   max-width:260px!important;
-}
-#swagger .swagger-ui .execute-wrapper .btn.execute{
-  margin:0!important;
-}
-/* Hard gap even if flex gap is ignored by Swagger defaults */
-#swagger .swagger-ui .execute-wrapper .btn-clear,
-#swagger .swagger-ui .execute-wrapper button.btn.btn-clear,
-#swagger .swagger-ui .execute-wrapper .btn.execute + .btn,
-#swagger .swagger-ui .execute-wrapper .btn.execute + .btn-clear,
-#swagger .swagger-ui .execute-wrapper .btn.execute + button,
-#swagger .swagger-ui .btn.execute + .btn-clear,
-#swagger .swagger-ui .btn.execute + button.btn-clear{
-  margin:0 0 0 16px!important;
+  margin:0 auto!important;
 }
 #swagger .swagger-ui textarea,
 #swagger .swagger-ui input,
@@ -498,12 +495,11 @@ html[data-theme="dark"] .schema-note{
   }
 
   #swagger .swagger-ui .execute-wrapper{
-    padding:8px 0!important;
+    padding:12px 0!important;
     gap:16px!important;
     justify-content:center!important;
-  }
-  #swagger .swagger-ui .execute-wrapper{
-    justify-content:center!important;
+    place-content:center!important;
+    margin:0 auto!important;
   }
   #swagger .swagger-ui .execute-wrapper .btn.execute,
   #swagger .swagger-ui .execute-wrapper .btn-clear,
@@ -514,6 +510,7 @@ html[data-theme="dark"] .schema-note{
     width:210px!important;
     min-width:210px!important;
     max-width:210px!important;
+    margin:0!important;
     padding:8px 20px!important;
     border-radius:10px!important;
   }
@@ -523,12 +520,7 @@ html[data-theme="dark"] .schema-note{
     width:260px!important;
     min-width:260px!important;
     max-width:260px!important;
-  }
-  #swagger .swagger-ui .execute-wrapper .btn-clear,
-  #swagger .swagger-ui .execute-wrapper button.btn.btn-clear,
-  #swagger .swagger-ui .execute-wrapper .btn.execute + .btn,
-  #swagger .swagger-ui .btn.execute + .btn-clear{
-    margin:0 0 0 16px!important;
+    margin:0 auto!important;
   }
   #swagger .swagger-ui .opblock-section-header .btn.cancel,
   #swagger .swagger-ui .btn.try-out__btn.cancel{
@@ -704,14 +696,13 @@ html[data-theme="dark"] .schema-note{
   }
 
   #swagger .swagger-ui .execute-wrapper{
-    padding:8px 0!important;
+    padding:12px 0!important;
     display:flex!important;
     flex-wrap:wrap!important;
     gap:16px!important;
     justify-content:center!important;
-  }
-  #swagger .swagger-ui .execute-wrapper{
-    justify-content:center!important;
+    place-content:center!important;
+    margin:0 auto!important;
   }
   #swagger .swagger-ui .execute-wrapper .btn.execute,
   #swagger .swagger-ui .execute-wrapper .btn-clear,
@@ -722,6 +713,7 @@ html[data-theme="dark"] .schema-note{
     width:210px!important;
     min-width:210px!important;
     max-width:210px!important;
+    margin:0!important;
     padding:8px 20px!important;
     border-radius:10px!important;
     box-sizing:border-box!important;
@@ -732,11 +724,7 @@ html[data-theme="dark"] .schema-note{
     width:260px!important;
     min-width:260px!important;
     max-width:260px!important;
-  }
-  #swagger .swagger-ui .execute-wrapper .btn-clear,
-  #swagger .swagger-ui .execute-wrapper button.btn.btn-clear,
-  #swagger .swagger-ui .btn.execute + .btn-clear{
-    margin:0 0 0 16px!important;
+    margin:0 auto!important;
   }
   #swagger .swagger-ui .opblock-section-header .btn.cancel,
   #swagger .swagger-ui .btn.try-out__btn.cancel{
