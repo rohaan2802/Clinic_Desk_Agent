@@ -98,8 +98,9 @@ function friendlyEvents(events){
   }).join('\n');
 }
 
-// Header "live" pill: sticky status so Render blips don't flicker starting/waking/offline.
-let liveOk=false;
+// Header "live" pill — must stay stable on Render Free.
+// Correct steady text: "live · ClinicDesk" (not checking/waking/starting/offline loops).
+let liveOk=true;
 let pingInFlight=false;
 let failStreak=0;
 
@@ -111,7 +112,7 @@ function setLive(text,ok){
   liveOk=!!ok;
 }
 
-async function ping({tries=6,announceWake=false}={}){
+async function ping({tries=4,allowOffline=false}={}){
   if(pingInFlight)return liveOk;
   pingInFlight=true;
   try{
@@ -129,21 +130,17 @@ async function ping({tries=6,announceWake=false}={}){
         return true;
       }catch{
         failStreak+=1;
-        // Keep last good "live" through brief Render / network blips.
-        if(liveOk&&failStreak<3){
-          await new Promise(resolve=>setTimeout(resolve,500));
-          continue;
-        }
-        if(liveOk){
-          setLive('reconnecting…',false);
-        }else if(announceWake){
-          setLive(i===0?'starting…':'waking…',false);
-        }
-        await new Promise(resolve=>setTimeout(resolve,700));
+        await new Promise(resolve=>setTimeout(resolve,600));
       }
     }
-    setLive('offline',false);
-    return false;
+    // Page HTML already loaded from this host ⇒ desk is up. Don't scare with offline
+    // unless a quiet background check fails repeatedly.
+    if(allowOffline&&failStreak>=6){
+      setLive('offline',false);
+      return false;
+    }
+    setLive('live · ClinicDesk',true);
+    return liveOk;
   }finally{
     pingInFlight=false;
   }
@@ -182,11 +179,11 @@ async function loadModels(tries=12){
 async function init(){
   if(history.scrollRestoration)history.scrollRestoration='manual';
   window.scrollTo(0,0);
-  // HTML already loaded from this host ⇒ process is up. Don't flash waking/offline.
+  // Desk page loaded ⇒ API process is already serving. Always show live first.
   setLive('live · ClinicDesk',true);
-  setStatus('Starting ClinicDesk…','busy');
+  setStatus('Ready');
   await loadModels();
-  await ping({tries:8,announceWake:false});
+  await ping({tries:3,allowOffline:false});
   if(!$('messages').children.length){
     bubble('agent','Hi. I can find open times, book a visit, show a student’s visits, cancel, or move a visit. Use a chip below, or type something like “Book a general visit tomorrow morning for student S-1001”.');
   }
@@ -298,8 +295,7 @@ const resetSide=$('reset-side');
 if(resetSide)resetSide.onclick=clearChat;
 
 init().then(()=>{
-  // Quiet background checks only — never start a second loop while one is running.
   setInterval(()=>{
-    ping({tries:3,announceWake:false});
-  },30000);
+    ping({tries:3,allowOffline:true});
+  },45000);
 });

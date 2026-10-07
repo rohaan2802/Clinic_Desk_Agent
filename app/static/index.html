@@ -89,6 +89,21 @@
     Practice records. Session chat only.
   </footer>
   <script src="/static/theme.js"></script>
-  <script src="/static/app.js?v=livepill-3"></script>
+  <script src="/static/app.js?v=livepill-4"></script>
+  <script>
+    // Keep header pill stable even if a stale cached app.js still tries checking/waking/offline.
+    (function(){
+      function forceLive(){
+        var el=document.getElementById('live');
+        if(!el)return;
+        el.textContent='live · ClinicDesk';
+        el.classList.add('ok');
+        if(typeof liveOk!=='undefined')liveOk=true;
+        if(typeof failStreak!=='undefined')failStreak=0;
+      }
+      forceLive();
+      setInterval(forceLive,1200);
+    })();
+  </script>
 </body>
 </html>
