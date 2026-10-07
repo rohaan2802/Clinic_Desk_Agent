@@ -23,6 +23,7 @@ class ScaffoldTests(_ResetLimits):
             health = client.get('/health').json()
             self.assertEqual(health['status'], 'ok')
             self.assertEqual(health['implementation'], 'complete')
+            self.assertIn('checked_at', health)
             self.assertEqual(client.get('/arena/manifest').json()['arena_version'], '0.1')
             result = client.post('/arena/run', json={'task': 'Test', 'arena_config': {'fault': 'none'}})
             self.assertEqual(result.status_code, 200)
@@ -261,8 +262,12 @@ class ClinicDeskTests(_ResetLimits):
             self.assertEqual(snap.status_code, 200)
             self.assertIn('Health snapshot', snap.text)
             self.assertIn('"status": "ok"', snap.text)
-            health = client.get('/health').json()
-            self.assertEqual(health['status'], 'ok')
+            self.assertIn('checked_at', snap.text)
+            health = client.get('/health')
+            self.assertEqual(health.status_code, 200)
+            self.assertIn('no-store', health.headers.get('cache-control', ''))
+            self.assertEqual(health.json()['status'], 'ok')
+            self.assertIn('checked_at', health.json())
 
     def test_break_attempt_battery(self):
         """Hardest attempts to break policy, budget, isolation, and safety."""

@@ -75,8 +75,8 @@ def check_pages() -> None:
     print('\n== Pages / assets ==')
     checks = [
         ('/', 'text/html', ['ClinicDesk', '/health-ui', '/docs']),
-        ('/health-ui', 'text/html', ['Health', 'window.__HEALTH__', 'Running']),
-        ('/health-raw', 'text/html', ['Health snapshot', '"status": "ok"', 'ClinicDesk']),
+        ('/health-ui', 'text/html', ['Health', 'window.__HEALTH__', 'fetch(\'/health\'', 'setInterval']),
+        ('/health-raw', 'text/html', ['Health snapshot', '"status": "ok"', 'checked_at', 'ClinicDesk']),
         ('/openapi', 'text/html', ['OpenAPI contract', '"openapi"', '/chat']),
         ('/manifest', 'text/html', ['Arena manifest', 'ClinicDesk', 'search_availability']),
         ('/models-view', 'text/html', ['Answer models', 'clinic-policy-v1']),
@@ -110,10 +110,12 @@ def check_pages() -> None:
                 if missing:
                     detail += f' missing={missing}'
             if path == '/health-ui':
-                # Must embed payload (no fetch-only offline flash).
+                # Boot embed + live poll (real-time, not paint-once).
                 ok = ok and 'window.__HEALTH__' in text and '"status": "ok"' in text
+                ok = ok and 'setInterval' in text and "/health" in text
             if path == '/health-raw':
                 ok = ok and 'Failed to fetch' not in text and 'Could not load' not in text
+                ok = ok and 'checked_at' in text
         # Cache-Control for dynamic health pages
         if path in {'/health-ui', '/health-raw', '/openapi', '/manifest'}:
             cc = headers.get('Cache-Control', headers.get('cache-control', ''))

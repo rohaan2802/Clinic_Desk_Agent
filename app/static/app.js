@@ -98,11 +98,11 @@ function friendlyEvents(events){
   }).join('\n');
 }
 
-// Header live pill — real /health result, without starting/waking flicker spam.
-// live · ClinicDesk  = /health ok
-// offline            = /health failed after retries (honest)
+// Header live pill — honest real-time /health (never faked as always-live).
+// live · ClinicDesk  = /health returned status ok
+// offline            = /health failed after retries
 let liveOk=false;
-let pingInFlight=false;
+let pingPromise=null;
 
 function setLive(text,ok){
   const el=$('live');
@@ -112,15 +112,14 @@ function setLive(text,ok){
   liveOk=!!ok;
 }
 
-async function ping({tries=4}={}){
-  if(pingInFlight)return liveOk;
-  pingInFlight=true;
-  try{
+async function ping({tries=6}={}){
+  if(pingPromise)return pingPromise;
+  pingPromise=(async()=>{
     for(let i=0;i<tries;i++){
       try{
         const controller=new AbortController();
-        const timer=setTimeout(()=>controller.abort(),8000);
-        const r=await fetch('/health',{cache:'no-store',signal:controller.signal});
+        const timer=setTimeout(()=>controller.abort(),12000);
+        const r=await fetch('/health?_='+Date.now(),{cache:'no-store',signal:controller.signal});
         clearTimeout(timer);
         if(!r.ok)throw Error('bad status');
         const data=await r.json();
@@ -128,18 +127,17 @@ async function ping({tries=4}={}){
         setLive('live · ClinicDesk',true);
         return true;
       }catch{
-        // Keep last good "live" through short blips; don't flash starting/waking.
-        if(!liveOk){
-          setLive('checking…',false);
-        }
-        await new Promise(resolve=>setTimeout(resolve,600));
+        if(!liveOk)setLive('checking…',false);
+        await new Promise(resolve=>setTimeout(resolve,700));
       }
     }
-    // Confirmed failure after retries — show real offline (not fake live).
     setLive('offline',false);
     return false;
+  })();
+  try{
+    return await pingPromise;
   }finally{
-    pingInFlight=false;
+    pingPromise=null;
   }
 }
 
@@ -178,8 +176,10 @@ async function init(){
   window.scrollTo(0,0);
   setLive('checking…',false);
   setStatus('Ready');
+  // Ping in parallel with models so a slow /models load cannot delay the live pill.
+  const healthP=ping({tries:8});
   await loadModels();
-  await ping({tries:5});
+  await healthP;
   if(!$('messages').children.length){
     bubble('agent','Hi. I can find open times, book a visit, show a student’s visits, cancel, or move a visit. Use a chip below, or type something like “Book a general visit tomorrow morning for student S-1001”.');
   }
@@ -293,5 +293,8 @@ if(resetSide)resetSide.onclick=clearChat;
 init().then(()=>{
   setInterval(()=>{
     ping({tries:3});
-  },30000);
+  },15000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')ping({tries:3});
+  });
 });
