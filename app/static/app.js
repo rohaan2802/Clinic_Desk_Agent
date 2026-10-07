@@ -98,16 +98,23 @@ function friendlyEvents(events){
   }).join('\n');
 }
 
-async function ping(){
-  try{
-    const r=await fetch('/health');
-    const data=await r.json();
-    $('live').textContent=data.status==='ok'?'live · ClinicDesk':'down';
-    $('live').classList.toggle('ok',data.status==='ok');
-  }catch{
-    $('live').textContent='offline';
-    $('live').classList.remove('ok');
+async function ping(tries=12){
+  for(let i=0;i<tries;i++){
+    try{
+      const r=await fetch('/health',{cache:'no-store'});
+      if(!r.ok)throw Error('bad status');
+      const data=await r.json();
+      $('live').textContent=data.status==='ok'?'live · ClinicDesk':'down';
+      $('live').classList.toggle('ok',data.status==='ok');
+      return;
+    }catch{
+      $('live').textContent=i===0?'starting…':'waking…';
+      $('live').classList.remove('ok');
+      await new Promise(resolve=>setTimeout(resolve,700));
+    }
   }
+  $('live').textContent='offline';
+  $('live').classList.remove('ok');
 }
 
 async function loadModels(tries=12){

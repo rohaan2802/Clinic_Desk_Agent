@@ -2,7 +2,7 @@ import json
 from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 
 from app.arena import execute
 from app.config import ROOT, settings
@@ -25,9 +25,28 @@ def index():
     return FileResponse(ROOT / 'app/static/index.html')
 
 
+def _health_payload() -> dict:
+    return {
+        'status': 'ok',
+        'implementation': 'complete',
+        'agent': 'ClinicDesk',
+        'domain': 'campus_clinic_appointments',
+        'default_model': settings.model_name or 'clinic-policy-v1',
+        'models': configured_models(),
+        'providers_ready': provider_flags(),
+        'limits': snapshot(),
+    }
+
+
 @router.get('/health-ui', summary='Open the health status page')
 def health_ui():
-    return FileResponse(ROOT / 'app/static/health.html')
+    # Embed live status in the HTML so Render Free cold-starts don't flash "offline"
+    # when the second /health fetch is slow or briefly fails.
+    html = (ROOT / 'app/static/health.html').read_text(encoding='utf-8')
+    boot = json.dumps(_health_payload(), ensure_ascii=True)
+    inject = f'<script>window.__HEALTH__={boot};</script>\n  <script src="/static/theme.js"></script>'
+    html = html.replace('<script src="/static/theme.js"></script>', inject, 1)
+    return HTMLResponse(html, headers={'Cache-Control': 'no-store'})
 
 
 @router.get('/health-raw', summary='Open health data as a pretty page')
@@ -82,16 +101,7 @@ def openapi_json_redirect():
 
 @router.get('/health', summary='Check if ClinicDesk is running')
 def health():
-    return {
-        'status': 'ok',
-        'implementation': 'complete',
-        'agent': 'ClinicDesk',
-        'domain': 'campus_clinic_appointments',
-        'default_model': settings.model_name or 'clinic-policy-v1',
-        'models': configured_models(),
-        'providers_ready': provider_flags(),
-        'limits': snapshot(),
-    }
+    return _health_payload()
 
 
 @router.get('/arena/manifest', summary='Show the assignment contract')

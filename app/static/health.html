@@ -45,7 +45,7 @@
       const klass = tone ? 'stat '+tone : 'stat';
       return '<article class="'+klass+'"><span>'+label+'</span><strong>'+(value||'—')+'</strong></article>';
     }
-    fetch('/health').then(r=>r.json()).then(data=>{
+    function paint(data){
       const ready = Object.entries(data.providers_ready||{}).filter(([,ok])=>ok).map(([name])=>name).join(', ')||'none yet';
       const models = (data.models||[]).filter(name=>name!=='unconfigured').join(', ')||'none yet';
       const ok = data.status==='ok';
@@ -59,9 +59,31 @@
         card('Answer options', models),
         card('Jobs running now', String((data.limits||{}).concurrent ?? '0'))
       ].join('');
-    }).catch(()=>{
-      document.getElementById('cards').innerHTML = card('Status', 'offline', 'is-bad');
-    });
+    }
+    async function loadHealth(tries){
+      // Render Free sleeps after idle; first /health can fail until the service wakes.
+      for(let i=0;i<tries;i++){
+        try{
+          const r = await fetch('/health', {cache:'no-store'});
+          if(!r.ok) throw new Error('bad status '+r.status);
+          paint(await r.json());
+          return;
+        }catch(err){
+          const msg = i===0 ? 'Starting…' : ('Waking Render… try '+(i+1)+'/'+tries);
+          document.getElementById('cards').innerHTML = card('Status', msg, '');
+          await new Promise(resolve=>setTimeout(resolve, 900));
+        }
+      }
+      document.getElementById('cards').innerHTML = [
+        card('Status', 'offline', 'is-bad'),
+        card('Hint', 'Refresh once — Render Free may still be waking up')
+      ].join('');
+    }
+    if(window.__HEALTH__){
+      paint(window.__HEALTH__);
+    }else{
+      loadHealth(20);
+    }
   </script>
 </body>
 </html>
