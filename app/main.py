@@ -1,12 +1,14 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
+import os
 import sys
 import threading
 
-# F5 / python app/main.py: script dir is app/, so the package is not on sys.path.
+# F5 / python app/main.py: work from any cwd by pinning the project root.
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
+os.chdir(_ROOT)
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles

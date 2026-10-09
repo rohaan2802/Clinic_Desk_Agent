@@ -1,6 +1,7 @@
 """Start ClinicDesk on a free port and open the browser."""
 from __future__ import annotations
 
+import os
 import socket
 import subprocess
 import sys
@@ -8,6 +9,12 @@ import threading
 import time
 import webbrowser
 from pathlib import Path
+
+# Always resolve from this file so the app works no matter what the shell cwd is.
+ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+os.chdir(ROOT)
 
 import uvicorn
 
@@ -128,6 +135,6 @@ if __name__ == '__main__':
         port=port,
         workers=1,
         reload=False,
-        app_dir=str(Path(__file__).resolve().parent),
+        app_dir=str(ROOT),
     )
     sys.exit(0)
