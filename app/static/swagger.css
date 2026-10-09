@@ -309,8 +309,50 @@ html[data-theme="light"] #swagger .swagger-ui .microlight,
 html[data-theme="light"] #swagger .swagger-ui textarea,
 html[data-theme="light"] #swagger .swagger-ui input,
 html[data-theme="light"] #swagger .swagger-ui select{
-  background:#fff!important;
-  color:#102226!important;
+  background:var(--card2)!important;
+  color:var(--ink)!important;
+  border:2px solid var(--line)!important;
+}
+/* Light mode: Clear / Cancel = soft outline (not dark teal fill) */
+html[data-theme="light"] #swagger .swagger-ui .btn-clear,
+html[data-theme="light"] #swagger .swagger-ui button.btn.btn-clear,
+html[data-theme="light"] #swagger .swagger-ui .btn.cancel,
+html[data-theme="light"] #swagger .swagger-ui .btn.try-out__btn.cancel,
+html[data-theme="light"] #swagger .swagger-ui .opblock-section-header .btn.cancel{
+  background:var(--card2)!important;
+  color:var(--ink)!important;
+  border:2px solid var(--line)!important;
+  box-shadow:none!important;
+}
+html[data-theme="light"] #swagger .swagger-ui .btn-clear:hover,
+html[data-theme="light"] #swagger .swagger-ui button.btn.btn-clear:hover,
+html[data-theme="light"] #swagger .swagger-ui .btn.cancel:hover,
+html[data-theme="light"] #swagger .swagger-ui .btn.try-out__btn.cancel:hover{
+  background:#d6e9e3!important;
+  color:var(--ink)!important;
+}
+html[data-theme="light"] #swagger .swagger-ui .btn.execute,
+html[data-theme="light"] #swagger .swagger-ui button.btn.execute,
+html[data-theme="light"] #swagger .swagger-ui .btn.try-out__btn:not(.cancel){
+  background:linear-gradient(135deg,var(--accent),var(--accent2))!important;
+  color:#f4fffb!important;
+  border:0!important;
+  box-shadow:0 8px 18px #02141822!important;
+}
+html[data-theme="light"] #swagger .swagger-ui,
+html[data-theme="light"] #swagger .swagger-ui p,
+html[data-theme="light"] #swagger .swagger-ui span,
+html[data-theme="light"] #swagger .swagger-ui label,
+html[data-theme="light"] #swagger .swagger-ui td,
+html[data-theme="light"] #swagger .swagger-ui th,
+html[data-theme="light"] #swagger .swagger-ui li,
+html[data-theme="light"] #swagger .swagger-ui h4,
+html[data-theme="light"] #swagger .swagger-ui h5,
+html[data-theme="light"] #swagger .swagger-ui small{
+  color:var(--ink)!important;
+}
+html[data-theme="light"] #swagger .swagger-ui a{
+  color:#003d8f!important;
 }
 
 .schema-wrap{max-width:1280px;margin:28px auto 0}

@@ -19,15 +19,15 @@
 }
 html[data-theme="light"]{
   /* Readable light: soft tinted surfaces (not glare-white), dark ink everywhere */
-  --bg:#b4ccc5;
-  --bg2:#94b8ae;
-  --ink:#000608;
-  --muted:#082026;
-  --line:#0f3a34;
-  --card:#f2faf8;
-  --card2:#e4f0ec;
-  --accent:#012a31;
-  --accent2:#044550;
+  --bg:#aac4bc;
+  --bg2:#8ab5aa;
+  --ink:#000304;
+  --muted:#051a20;
+  --line:#0a332d;
+  --card:#f8fcfb;
+  --card2:#e8f3ef;
+  --accent:#0a5c68;
+  --accent2:#0e7886;
   --warn:#5a3800;
   --user:#9fd4c8;
   --agent:#b8e0d6;
@@ -170,14 +170,28 @@ html[data-theme="light"] #external{
 }
 html[data-theme="light"] .ghost,
 html[data-theme="light"] #theme,
-html[data-theme="light"] #reset,
-html[data-theme="light"] #reset-side,
 html[data-theme="light"] .examples button{
   color:var(--ink);
   border-width:2px;
   border-color:var(--line);
   background:var(--card);
   font-weight:600;
+}
+html[data-theme="light"] #reset,
+html[data-theme="light"] #reset-side,
+html[data-theme="light"] .clear-btn{
+  color:var(--ink)!important;
+  border:2px solid var(--line)!important;
+  background:var(--card2)!important;
+  box-shadow:none!important;
+  font-weight:700!important;
+}
+html[data-theme="light"] #reset:hover,
+html[data-theme="light"] #reset-side:hover,
+html[data-theme="light"] .clear-btn:hover{
+  background:#d6e9e3!important;
+  border-color:var(--line)!important;
+  color:var(--ink)!important;
 }
 html[data-theme="light"] .top-actions a.ghost{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
@@ -207,7 +221,7 @@ html[data-theme="light"] .bubble{
   border-width:2px;
   border-color:var(--line);
   color:var(--ink);
-  font-weight:550;
+  font-weight:600;
 }
 html[data-theme="light"] .status-pill{
   border-width:2px;
