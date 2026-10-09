@@ -19,15 +19,15 @@
 }
 html[data-theme="light"]{
   /* Readable light: soft tinted surfaces (not glare-white), dark ink everywhere */
-  --bg:#c9ddd8;
-  --bg2:#a8c8c0;
-  --ink:#021418;
-  --muted:#0f2a30;
-  --line:#1f4f4a;
-  --card:#ecf6f3;
-  --card2:#dceee9;
-  --accent:#023640;
-  --accent2:#065a66;
+  --bg:#b4ccc5;
+  --bg2:#94b8ae;
+  --ink:#000608;
+  --muted:#082026;
+  --line:#0f3a34;
+  --card:#f2faf8;
+  --card2:#e4f0ec;
+  --accent:#012a31;
+  --accent2:#044550;
   --warn:#5a3800;
   --user:#9fd4c8;
   --agent:#b8e0d6;
@@ -127,7 +127,7 @@ html[data-theme="light"] .orbit{
 }
 html[data-theme="light"] .lede{
   color:var(--ink);
-  font-weight:500;
+  font-weight:600;
 }
 html[data-theme="light"] .hint,
 html[data-theme="light"] .meta,
@@ -136,10 +136,13 @@ html[data-theme="light"] .field span,
 html[data-theme="light"] .field,
 html[data-theme="light"] .panel label,
 html[data-theme="light"] #chat label,
-html[data-theme="light"] .mini pre,
+html[data-theme="light"] .mini pre{
+  color:var(--ink);
+  font-weight:500;
+}
 html[data-theme="light"] .stat span{
   color:var(--muted);
-  font-weight:600;
+  font-weight:700;
 }
 html[data-theme="light"] .stat strong,
 html[data-theme="light"] .panel h2,
@@ -163,7 +166,7 @@ html[data-theme="light"] #external{
   border-width:2px;
   border-color:var(--line);
   color:var(--ink);
-  font-weight:500;
+  font-weight:600;
 }
 html[data-theme="light"] .ghost,
 html[data-theme="light"] #theme,
@@ -204,7 +207,7 @@ html[data-theme="light"] .bubble{
   border-width:2px;
   border-color:var(--line);
   color:var(--ink);
-  font-weight:500;
+  font-weight:550;
 }
 html[data-theme="light"] .status-pill{
   border-width:2px;
